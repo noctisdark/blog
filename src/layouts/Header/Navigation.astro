@@ -1,0 +1,25 @@
+---
+import DropDown from "@components/icons/DropDown.astro";
+import Hamburger from "@components/icons/Hamburger.astro";
+import Avatar from "@components/ui/Avatar.astro";
+import Button from "@components/ui/Button.astro";
+import NavigationMenu from "./Navigation/NavigationMenu.astro";
+---
+
+<div class="bg-base-100 w-full flex justify-center">
+  <nav class="navbar max-w-screen-lg">
+    <div class="navbar-start">
+      <Button as="link" class="btn-ghost flex gap-4" href="/">
+        <Avatar
+          src="media/avatar.png"
+          rounded="sm"
+          ring={{ color: "primary" }}
+        />
+
+        <span> noctisdark</span>
+      </Button>
+    </div>
+
+    <NavigationMenu class="navbar-end" />
+  </nav>
+</div>

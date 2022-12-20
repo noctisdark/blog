@@ -1,0 +1,33 @@
+---
+const { as = "button", class: clazz = "", ...props } = Astro.props;
+---
+
+{
+  as === "button" && (
+    <button class={`btn ${clazz}`} {...props}>
+      <slot />
+    </button>
+  )
+}
+
+{
+  as === "link" && (
+    <a class={`btn ${clazz}`} {...props}>
+      <slot />
+    </a>
+  )
+}
+
+{
+  as === "label" && (
+    <label class={`btn ${clazz}`} {...props}>
+      <slot />
+    </label>
+  )
+}
+
+<style is:global>
+  .btn {
+    text-transform: unset;
+  }
+</style>
