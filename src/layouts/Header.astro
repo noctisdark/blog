@@ -7,3 +7,18 @@ import Navigation from "./Header/Navigation.astro";
   <Navigation />
   <Hero />
 </header>
+
+<style is:global>
+  :root {
+    --navbar-height: 4rem;
+  }
+
+
+  .navbar {
+    height: var(--navbar-height);
+  }
+
+  .hero {
+    margin-top: var(--navbar-height);
+  }
+</style>
