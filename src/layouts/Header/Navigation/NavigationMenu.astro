@@ -2,10 +2,13 @@
 import Button from "@components/ui/Button.astro";
 import Hamburger from "@components/icons/Hamburger.astro";
 import NavigationItems from "./NavigationItems.astro";
+import LightModeSwitch from "./LightModeSwitch.astro";
 ---
 
 <!-- TODO: fix focus not showing on menu -->
 <div class="navbar-end">
+  <LightModeSwitch />
+  
   <div class="dropdown dropdown-end lg:hidden">
     <Button tabindex="0" class="btn-ghost">
       <Hamburger />

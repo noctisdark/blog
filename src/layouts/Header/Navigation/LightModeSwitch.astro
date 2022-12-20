@@ -1,0 +1,31 @@
+---
+import Button from "@components/ui/Button.astro";
+---
+
+<Button id="themeToggle" class="btn-ghost">
+  <img width="18px" height="18px" src="/media/theme_dark.svg" />
+</Button>
+
+<script>
+  import { toggleTheme, applyTheme, getCurrentTheme } from "@scripts/theme";
+  
+  const lightThemeSwitch = document.getElementById("themeToggle");
+  
+  const loadThemeIcon = (theme: "light" | "dark") => {
+    (
+      lightThemeSwitch.children[0] as HTMLImageElement
+    ).src = `/media/theme_${theme}.svg`;
+  };
+
+
+  const handleToggleClick = () => {
+    const theme = document.documentElement.dataset.theme,
+      nextTheme = theme === "dark" ? "light" : "dark";
+    
+    applyTheme(nextTheme);
+    loadThemeIcon(nextTheme);
+  };
+
+  lightThemeSwitch.addEventListener("click", handleToggleClick);
+  loadThemeIcon(getCurrentTheme());
+</script>

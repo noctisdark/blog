@@ -11,6 +11,6 @@ module.exports = {
     styled: true,
     base: true,
     utils: true,
-    themes: ["light", "dark"]
+    themes: ["light", "dark"],
   },
 };
