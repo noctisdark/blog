@@ -1,17 +1,102 @@
 ---
 import Button from "@components/ui/Button.astro";
+import ThreeScene from "./Hero/ThreeScene.astro";
 ---
 
-<div class="flex-1 hero bg-base-200">
-  <div class="hero-content text-center">
-    <div class="max-w-md">
-      <h1 class="text-5xl font-bold">Hello there</h1>
-      <p class="py-6">
-        Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-        excepturi exercitationem quasi. In deleniti eaque aut repudiandae et a
-        id nisi.
-      </p>
-      <Button class="btn-primary">Get Started</Button>
+<div
+  class="flex-1 hero max-w-screen-xl"
+  style="margin-left: auto; margin-right: auto;"
+>
+  <!-- <ThreeScene /> -->
+  <div class="hero-overlay bg-opacity-50"></div>
+  <div class="w-full hero-content text-neutral-content">
+    <div class="w-full max-w-md font-mono">
+      <div id="typewriter-canvas"></div>
     </div>
   </div>
 </div>
+
+<script>
+  import Typewriter from "typewriter-effect/dist/core";
+  import { PowerGlitch } from "powerglitch";
+
+  //TODO: use Intersection Observer API to turnoff animation
+  const defaultDelay = 30;
+  const systemDelay = 20;
+  const slowerDelay = 50;
+  const glitchedDelay = 100;
+  const shortPause = 500;
+  const normalPause = 1000;
+  const systemPause = 2000;
+  const longPause = 5000;
+  const glitchFrequency = 1000;
+
+  const typewriter = new Typewriter("#typewriter-canvas", {
+    loop: true,
+    delay: defaultDelay,
+  });
+
+  typewriter.terminal = ({
+    name = "terminal",
+    delay = systemDelay,
+    pause = systemPause,
+    exitDelay = defaultDelay,
+  } = {}) =>
+    typewriter
+      .changeDelay(delay)
+      .typeString(`[ ${name} ]: `)
+      .changeDelay(exitDelay)
+      .pauseFor(pause);
+
+  const { startGlitch, stopGlitch } = PowerGlitch.glitch("#typewriter-canvas", {
+    timing: {
+      duration: glitchFrequency,
+    }
+  });
+
+  typewriter
+    .callFunction(stopGlitch)
+    .pauseFor(normalPause)
+    .terminal()
+    .typeString(
+      "<span style='color: hsl(var(--su));'>installation complete</span><br/>"
+    )
+    .pauseFor(normalPause)
+    .terminal({name: "kernel"})
+    .pauseFor(shortPause)
+    .typeString(
+      "<span style='color: hsl(var(--in));'>system booting</span><br/>"
+    )
+    .pauseFor(normalPause)
+    .typeString("--------------------------------<br/>")
+    .pauseFor(shortPause)
+    .changeDelay(slowerDelay)
+    .typeString(
+      "<span class='text-3xl font-bold'>Hello there !</span><br/><br/>"
+    )
+    .changeDelay(defaultDelay)
+    .pauseFor(normalPause)
+    .terminal({name: "kernel"})
+    .pauseFor(shortPause)
+    .typeString("Welcome<br/>")
+    .pauseFor(normalPause)
+    .terminal({name: "kernel"})
+    .typeString("I am noctisark<br/>")
+    .pauseFor(normalPause)
+    .terminal({name: "kernel"})
+    .pauseFor(shortPause)
+    .typeString("I am a ")
+    .callFunction(startGlitch)
+    .changeDelay(glitchedDelay)
+    .typeString("software en g i i<br/>")
+    .pauseFor(shortPause)
+    .typeString("<span style='color: hsl(var(--er));'>s e g m e n t a t i o n 陰位ド</span><br/>")
+    .pauseFor(2 * longPause)
+    .deleteAll(10)
+    .terminal({ name: "終端", delay: glitchedDelay, exitDelay: glitchedDelay, pause: 0 })
+    .typeString(
+      "<span style='color: hsl(var(--er));'>再起動中</span><br/>"
+    )
+    .pauseFor(5000)
+    .start();
+</script>
