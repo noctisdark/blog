@@ -1,0 +1,46 @@
+---
+import Github from "@components/icons/Github.astro";
+import LinkedIn from "@components/icons/LinkedIn.astro";
+
+interface Props {
+  style?: string;
+}
+
+const { style = "" } = Astro.props;
+---
+
+<footer
+  class="footer items-center p-4 bg-base-100"
+  style={style}
+>
+  <div class="items-center grid-flow-col">
+    <p>© 2022 - noctisdark</p>
+  </div>
+  <div class="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
+    <div class="tooltip" data-tip="Github">
+      <a
+        rel="noopener norefenoopener noreferrer"
+        href="https://github.com/noctisdark"
+      >
+        <Github />
+      </a>
+    </div>
+    <div class="tooltip" data-tip="LinkedIn">
+      <a
+        rel="noopener norefenoopener noreferrer"
+        href="https://www.linkedin.com/in/majed-abdennadher-16b546177/"
+      >
+        <LinkedIn />
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  /* Pretty sure these styles aren't enough, TODO: complete the styles */
+  .footer {
+    /* tooltips show scrollbars sometimes, giving space seems like the easiest fix */
+    max-width: 95%; 
+    margin-top: auto;
+  }
+</style>

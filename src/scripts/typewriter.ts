@@ -35,9 +35,11 @@ if (document.getElementById("typewriter-canvas")) {
     endLastGlitch = () => {
       stopGlitch();
       const container = containers[0]; // the layer container
-      const originalContent = container.firstChild.firstChild;
+      const originalContent = container.firstChild.firstChild as HTMLElement;
       const parentElement = container.parentElement;
       container.remove();
+      originalContent.style.gridArea = "";
+      delete originalContent.dataset.glitched;
       parentElement.appendChild(originalContent);
     };
 
