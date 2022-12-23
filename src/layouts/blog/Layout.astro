@@ -1,0 +1,23 @@
+---
+import BlogHeader from "./Header.astro";
+import Footer from "@layouts/Footer.astro";
+import Layout from "@layouts/Layout.astro";
+
+const { title, slug, description, tags, pubDate, image, author } = Astro.props;
+const mainTag = tags?.[0] || "anonymous";
+---
+
+<Layout title={title}>
+  <BlogHeader>
+    <ul slot="breadcrumbs-items">
+      <li><a href="/">/</a></li>
+      <!--  TODO: <li><a href={`/tags/${mainTag}`} aria-disabled="true">{mainTag}</a></li> -->
+      <li>{mainTag}</li>
+      <li><a href={`/blog/${slug}`}>{title}</a></li>
+    </ul>
+  </BlogHeader>
+  <main>
+    <slot />
+  </main>
+  <Footer />
+</Layout>

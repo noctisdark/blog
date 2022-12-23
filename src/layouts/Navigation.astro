@@ -4,7 +4,7 @@ import Button from "@components/ui/Button.astro";
 import NavigationMenu from "./Navigation/NavigationMenu.astro";
 ---
 
-<div class="fixed top-0 bg-base-100 w-full flex justify-center">
+<div class="fixed top-0 bg-base-100 w-full flex flex-col items-center">
   <nav class="navbar max-w-screen-lg">
     <div class="navbar-start">
       <Button as="link" class="btn-ghost flex gap-4" href="/">
@@ -20,4 +20,17 @@ import NavigationMenu from "./Navigation/NavigationMenu.astro";
 
     <NavigationMenu class="navbar-end" />
   </nav>
+
+  <slot name="breadcrumbs" />
 </div>
+
+<style is:global>
+  :root {
+    --navbar-height: 4rem;
+    --breadcrumbs-height: 2.25em;
+  }
+
+  .navbar {
+    height: var(--navbar-height);
+  }
+</style>

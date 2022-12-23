@@ -1,18 +1,17 @@
 ---
-import Footer from "./Footer.astro";
-import Navigation from "./Navigation.astro";
+import Navigation from "@layouts/Navigation.astro";
+import Footer from "@layouts/Footer.astro";
 ---
 
 <header class="flex flex-col bg-base-300">
   <Navigation />
 </header>
 
-<script async src="https://tenor.com/embed.js"></script>
-<style is:global>
+<style is:global> 
   :root {
     --header-height: calc(var(--navbar-height));
   }
-  
+
   header {
     width: 100%;
     height: var(--header-height);

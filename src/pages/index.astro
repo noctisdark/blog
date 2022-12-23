@@ -1,8 +1,22 @@
 ---
 import Layout from "@layouts/Layout.astro";
-import IndexHeader from "@layouts/IndexHeader.astro";
+import IndexHeader from "@layouts/index/Header.astro";
+
+import ThreeScene from "@layouts/index/ThreeScene.astro";
+import Typewriter from "@layouts/index/Typewriter.astro";
+import Footer from "@layouts/Footer.astro";
 ---
 
 <Layout title="Welcome">
   <IndexHeader />
+  <main class="flex-1 hero max-w-screen-xl">
+    <ThreeScene />
+    <div class="hero-overlay bg-opacity-50"></div>
+    <div class="w-full hero-content text-neutral-content overflow-hidden">
+      <div class="w-full max-w-md font-mono">
+        <Typewriter />
+      </div>
+    </div>
+    <Footer style="background-color: transparent; color: hsl(var(--nc));" />
+  </main>
 </Layout>

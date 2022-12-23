@@ -1,0 +1,30 @@
+---
+import Navigation from "@layouts/Navigation.astro";
+---
+
+<header class="flex flex-col bg-base-300">
+  <Navigation>
+    <div class="px-6 max-w-screen-lg w-full" slot="breadcrumbs">
+      <div class="text-sm breadcrumbs">
+        <slot name="breadcrumbs-items">
+          <ul>
+            <li>
+              <a href="/">/</a>
+            </li>
+          </ul>
+        </slot>
+      </div>
+    </div>
+  </Navigation>
+</header>
+
+<style is:global>
+  :root {
+    --header-height: calc(var(--navbar-height) + var(--breadcrumbs-height));
+  }
+
+  header {
+    width: 100%;
+    height: var(--header-height);
+  }
+</style>

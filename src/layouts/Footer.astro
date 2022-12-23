@@ -10,7 +10,7 @@ const { style = "" } = Astro.props;
 ---
 
 <footer
-  class="footer items-center p-4 bg-base-100"
+  class="footer max-w-screen-lg items-center p-4 bg-base-100"
   style={style}
 >
   <div class="items-center grid-flow-col">
@@ -40,7 +40,8 @@ const { style = "" } = Astro.props;
   /* Pretty sure these styles aren't enough, TODO: complete the styles */
   .footer {
     /* tooltips show scrollbars sometimes, giving space seems like the easiest fix */
-    max-width: 95%; 
+    width: 95%; 
     margin-top: auto;
+    align-self: center;
   }
 </style>

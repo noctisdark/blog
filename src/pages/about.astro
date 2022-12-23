@@ -1,8 +1,27 @@
 ---
 import Layout from "@layouts/Layout.astro";
 import AboutHeader from "@layouts/AboutHeader.astro";
+import Footer from "@layouts/Footer.astro";
 ---
 
 <Layout title="About">
   <AboutHeader />
+  <main
+    class="flex-1 hero max-w-screen-xl"
+    style="margin-left: auto; margin-right: auto;"
+  >
+    <div
+      class="tenor-gif-embed"
+      data-postid="25603607"
+      data-share-method="host"
+      data-aspect-ratio="1.77778"
+      data-width="100%"
+      slot="hero-background"
+    >
+      <a href="https://tenor.com/view/its-blank-kung-fu-panda-gif-25603607">
+        Its Blank GIF
+      </a>from<a href="https://tenor.com/search/its-gifs">Its GIFs</a>
+    </div>
+  </main>
+  <Footer />
 </Layout>
