@@ -1,31 +1,29 @@
 ---
+import DarkTheme from "@components/icons/DarkTheme.astro";
+import LightTheme from "@components/icons/LightTheme.astro";
 import Button from "@components/ui/Button.astro";
 ---
 
-<Button id="themeToggle" class="btn-ghost">
-  <img width="18px" height="18px" src="/media/theme_dark.svg" />
-</Button>
+<label class="swap swap-rotate btn btn-ghost">
+  
+  <input id="themeToggle" type="checkbox" style="width: 20px; height: 20px;" checked />
+  <DarkTheme class="swap-on" />
+  <LightTheme class="swap-off" />
+</label>
 
 <script>
   import { toggleTheme, applyTheme, getCurrentTheme } from "@scripts/theme";
   
-  const lightThemeSwitch = document.getElementById("themeToggle");
-  
-  const loadThemeIcon = (theme: "light" | "dark") => {
-    (
-      lightThemeSwitch.children[0] as HTMLImageElement
-    ).src = `/media/theme_${theme}.svg`;
-  };
-
+  const lightThemeSwitch = document.getElementById("themeToggle") as HTMLInputElement;
 
   const handleToggleClick = () => {
     const theme = document.documentElement.dataset.theme,
       nextTheme = theme === "dark" ? "light" : "dark";
     
     applyTheme(nextTheme);
-    loadThemeIcon(nextTheme);
+    lightThemeSwitch.checked = (getCurrentTheme() === "dark");
   };
 
+  lightThemeSwitch.checked = (getCurrentTheme() === "dark");
   lightThemeSwitch.addEventListener("click", handleToggleClick);
-  loadThemeIcon(getCurrentTheme());
 </script>

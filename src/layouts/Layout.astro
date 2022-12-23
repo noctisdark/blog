@@ -14,9 +14,6 @@ const { title } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
-    <!-- load theme faster by including the script -->
-    <link rel="preload" href="/media/theme_light.svg" as="image">
-    <link rel="preload" href="/media/theme_dark.svg" as="image">
     <script is:inline>
       /* rogue script to set the theme at the speed of light */
       if ( localStorage.getItem("theme") ) document.documentElement.dataset.theme =  localStorage.getItem("theme");
