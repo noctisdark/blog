@@ -1,0 +1,35 @@
+---
+import Navigation from "./Navigation.astro";
+import ThreeScene from "./IndexHeader/ThreeScene.astro";
+import Typewriter from "./IndexHeader/Typewriter.astro";
+---
+
+<header class="flex flex-col bg-base-300 min-h-screen">
+  <Navigation />
+  <div
+    class="flex-1 hero max-w-screen-xl"
+    style="margin-left: auto; margin-right: auto;"
+  >
+    <ThreeScene />
+    <div class="hero-overlay bg-opacity-50"></div>
+    <div class="w-full hero-content text-neutral-content">
+      <div class="w-full max-w-md font-mono">
+        <Typewriter />
+      </div>
+    </div>
+  </div>
+</header>
+
+<style is:global>
+  :root {
+    --navbar-height: 4rem;
+  }
+
+  .navbar {
+    height: var(--navbar-height);
+  }
+
+  .hero {
+    margin-top: var(--navbar-height);
+  }
+</style>

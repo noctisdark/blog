@@ -1,25 +1,7 @@
----
-import Button from "@components/ui/Button.astro";
-import ThreeScene from "./Hero/ThreeScene.astro";
----
+import Typewriter from "typewriter-effect/dist/core";
+import { PowerGlitch } from "powerglitch";
 
-<div
-  class="flex-1 hero max-w-screen-xl"
-  style="margin-left: auto; margin-right: auto;"
->
-  <ThreeScene />
-  <div class="hero-overlay bg-opacity-50"></div>
-  <div class="w-full hero-content text-neutral-content">
-    <div class="w-full max-w-md font-mono">
-      <div id="typewriter-canvas"></div>
-    </div>
-  </div>
-</div>
-
-<script>
-  import Typewriter from "typewriter-effect/dist/core";
-  import { PowerGlitch } from "powerglitch";
-
+if (document.getElementById("typewriter-canvas")) {
   //TODO: use Intersection Observer API to turnoff animation
   const defaultDelay = 30;
   const systemDelay = 20;
@@ -51,7 +33,7 @@ import ThreeScene from "./Hero/ThreeScene.astro";
   const { startGlitch, stopGlitch } = PowerGlitch.glitch("#typewriter-canvas", {
     timing: {
       duration: glitchFrequency,
-    }
+    },
   });
 
   typewriter
@@ -62,7 +44,7 @@ import ThreeScene from "./Hero/ThreeScene.astro";
       "<span style='color: hsl(var(--su));'>installation complete</span><br/>"
     )
     .pauseFor(normalPause)
-    .terminal({name: "kernel"})
+    .terminal({ name: "kernel" })
     .pauseFor(shortPause)
     .typeString(
       "<span style='color: hsl(var(--in));'>system booting</span><br/>"
@@ -76,27 +58,32 @@ import ThreeScene from "./Hero/ThreeScene.astro";
     )
     .changeDelay(defaultDelay)
     .pauseFor(normalPause)
-    .terminal({name: "kernel"})
+    .terminal({ name: "kernel" })
     .pauseFor(shortPause)
     .typeString("Welcome<br/>")
     .pauseFor(normalPause)
-    .terminal({name: "kernel"})
+    .terminal({ name: "kernel" })
     .typeString("I am noctisark<br/>")
     .pauseFor(normalPause)
-    .terminal({name: "kernel"})
+    .terminal({ name: "kernel" })
     .pauseFor(shortPause)
     .typeString("I am a ")
     .callFunction(startGlitch)
     .changeDelay(glitchedDelay)
     .typeString("software en g i i<br/>")
     .pauseFor(shortPause)
-    .typeString("<span style='color: hsl(var(--er));'>s e g m e n t a t i o n 陰位ド</span><br/>")
+    .typeString(
+      "<span style='color: hsl(var(--er));'>s e g m e n t a t i o n 陰位ド</span><br/>"
+    )
     .pauseFor(2 * longPause)
     .deleteAll(10)
-    .terminal({ name: "終端", delay: glitchedDelay, exitDelay: glitchedDelay, pause: 0 })
-    .typeString(
-      "<span style='color: hsl(var(--er));'>再起動中</span><br/>"
-    )
+    .terminal({
+      name: "終端",
+      delay: glitchedDelay,
+      exitDelay: glitchedDelay,
+      pause: 0,
+    })
+    .typeString("<span style='color: hsl(var(--er));'>再起動中</span><br/>")
     .pauseFor(5000)
     .start();
-</script>
+}

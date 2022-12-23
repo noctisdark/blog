@@ -17,14 +17,17 @@ const { title } = Astro.props;
     <!-- load theme faster by including the script -->
     <link rel="preload" href="/media/theme_light.svg" as="image">
     <link rel="preload" href="/media/theme_dark.svg" as="image">
-
-    <script is:inline type="module" src="/src/scripts/theme" />
-    <script is:inline type="module">
-      import { getCurrentTheme, applyTheme } from "/src/scripts/theme";
-      applyTheme(getCurrentTheme())
+    <script is:inline>
+      /* rogue script to set the theme at the speed of light */
+      if ( localStorage.getItem("theme") ) document.documentElement.dataset.theme =  localStorage.getItem("theme");
     </script>
   </head>
   <body>
     <slot />
   </body>
 </html>
+
+<script>
+  import { getCurrentTheme, applyTheme } from "@scripts/theme.js";
+  applyTheme(getCurrentTheme())
+</script>

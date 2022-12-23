@@ -4,10 +4,10 @@ export const getCurrentTheme = (): "light" | "dark" => {
   )
     return localStorage.getItem("theme") as "light" | "dark";
 
-  if (window.matchMedia("(prefers-color-scheme: dark)").matches)
-    return "dark";
+  if (window.matchMedia("(prefers-color-scheme: light)").matches)
+    return "light";
 
-  return "light";
+  return "dark";
 };
 
 export const toggleTheme = (): "light" | "dark" => {
