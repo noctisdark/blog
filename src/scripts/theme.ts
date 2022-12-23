@@ -18,4 +18,5 @@ export const toggleTheme = (): "light" | "dark" => {
 export const applyTheme = (theme: "light" | "dark") => {
   document.documentElement.dataset.theme = theme;
   window.localStorage.setItem("theme", theme);
+  window.dispatchEvent(new Event("theme-change"));
 };
