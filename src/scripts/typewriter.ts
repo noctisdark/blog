@@ -16,7 +16,33 @@ if (document.getElementById("typewriter-canvas")) {
   const typewriter = new Typewriter("#typewriter-canvas", {
     loop: true,
     delay: defaultDelay,
+    cursor: "█",
   });
+
+  let endLastGlitch = null;
+  const createGlitch = () => {
+    const { startGlitch, stopGlitch, containers } = PowerGlitch.glitch(
+      "#typewriter-canvas",
+      {
+        timing: {
+          duration: glitchFrequency,
+          easing: "ease-in-out",
+        },
+        //createContainers: false
+      }
+    );
+
+    endLastGlitch = () => {
+      stopGlitch();
+      const container = containers[0]; // the layer container
+      const originalContent = container.firstChild.firstChild;
+      const parentElement = container.parentElement;
+      container.remove();
+      parentElement.appendChild(originalContent);
+    };
+
+    startGlitch();
+  };
 
   typewriter.terminal = ({
     name = "terminal",
@@ -30,24 +56,31 @@ if (document.getElementById("typewriter-canvas")) {
       .changeDelay(exitDelay)
       .pauseFor(pause);
 
-  const { startGlitch, stopGlitch } = PowerGlitch.glitch("#typewriter-canvas", {
-    timing: {
-      duration: glitchFrequency,
-    },
-  });
+  typewriter.loading = ({
+    delay = slowerDelay,
+    exitDelay = defaultDelay,
+  } = {}) =>
+    typewriter
+      .changeDelay(delay)
+      .typeString("...")
+      .deleteChars(3)
+      .typeString("...")
+      .deleteChars(3)
+      .typeString("...")
+      .deleteChars(3)
+      .typeString("... <span style='color: hsl(var(--su));'>DONE</span><br/>")
+      .changeDelay(exitDelay);
 
   typewriter
-    .callFunction(stopGlitch)
+    .callFunction(() => endLastGlitch && endLastGlitch())
     .pauseFor(normalPause)
     .terminal()
-    .typeString(
-      "<span style='color: hsl(var(--su));'>installation complete</span><br/>"
-    )
-    .pauseFor(normalPause)
+    .typeString("booting")
+    .loading()
     .terminal({ name: "kernel" })
     .pauseFor(shortPause)
     .typeString(
-      "<span style='color: hsl(var(--in));'>system booting</span><br/>"
+      "<span style='color: hsl(var(--in));'>system starting</span><br/>"
     )
     .pauseFor(normalPause)
     .typeString("--------------------------------<br/>")
@@ -60,17 +93,19 @@ if (document.getElementById("typewriter-canvas")) {
     .pauseFor(normalPause)
     .terminal({ name: "kernel" })
     .pauseFor(shortPause)
-    .typeString("Welcome<br/>")
+    .typeString("Hi 👋🏻 I'm Majed, and this is my blog.<br/>")
     .pauseFor(normalPause)
     .terminal({ name: "kernel" })
-    .typeString("I am noctisark<br/>")
+    .typeString(
+      "Here, I share my experiences and interests about the web, code challenges and CTFs.<br/>"
+    )
     .pauseFor(normalPause)
     .terminal({ name: "kernel" })
     .pauseFor(shortPause)
-    .typeString("I am a ")
-    .callFunction(startGlitch)
+    .typeString("Be")
+    .callFunction(createGlitch)
     .changeDelay(glitchedDelay)
-    .typeString("software en g i i<br/>")
+    .typeString(" w e l c o m e<br/>")
     .pauseFor(shortPause)
     .typeString(
       "<span style='color: hsl(var(--er));'>s e g m e n t a t i o n 陰位ド</span><br/>"
