@@ -27,7 +27,7 @@ import Navigation from "@layouts/Navigation.astro";
     width: 0;
     left: 0;
     background-color: hsl(var(--in));
-    transition: width 100ms linear;
+    transition: width 200ms linear;
   }
 </style>
 
@@ -37,7 +37,6 @@ import Navigation from "@layouts/Navigation.astro";
     const scroll = document.body.scrollTop || document.documentElement.scrollTop;
     const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
     const percentage = height ? (scroll / height) * 100 : 100;
-    console.log({scroll, height, percentage})
     progressBar.style.width = percentage + "%";
   };
 
