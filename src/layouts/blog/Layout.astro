@@ -3,7 +3,10 @@ import BlogHeader from "./Header.astro";
 import Footer from "@layouts/Footer.astro";
 import Layout from "@layouts/Layout.astro";
 
-const { title, slug, description, tags, pubDate, image, author } = Astro.props;
+const { title, slug, description, tags, pubDate, image, author } = Astro.props
+  .frontmatter
+  ? Astro.props.frontmatter
+  : Astro.props;
 const mainTag = tags?.[0] || "anonymous";
 ---
 
@@ -16,8 +19,8 @@ const mainTag = tags?.[0] || "anonymous";
       <li><a href={`/blog/${slug}`}>{title}</a></li>
     </ul>
   </BlogHeader>
-  <main class="max-w-screen-lg w-full px-4 py-8 prose lg:prose-xl">
+  <main class="max-w-screen-lg w-full px-4 py-8 prose">
     <slot />
   </main>
-  <Footer style="border-top: 1px solid currentColor"/>
+  <Footer style="border-top: 1px solid currentColor" />
 </Layout>
