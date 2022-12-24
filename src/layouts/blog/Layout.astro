@@ -16,8 +16,8 @@ const mainTag = tags?.[0] || "anonymous";
       <li><a href={`/blog/${slug}`}>{title}</a></li>
     </ul>
   </BlogHeader>
-  <main>
+  <main class="max-w-screen-lg w-full px-4 py-8 prose lg:prose-xl">
     <slot />
   </main>
-  <Footer />
+  <Footer style="border-top: 1px solid currentColor"/>
 </Layout>
