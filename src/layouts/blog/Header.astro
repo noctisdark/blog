@@ -14,9 +14,36 @@ import Navigation from "@layouts/Navigation.astro";
           </ul>
         </slot>
       </div>
+      <div aria-label="scroll progress" id="scroll-progress"></div>
     </div>
   </Navigation>
 </header>
+
+<style>
+  #scroll-progress {
+    display: block;
+    height: 2px;
+    position: absolute;
+    width: 0;
+    left: 0;
+    background-color: hsl(var(--in));
+    transition: width 100ms linear;
+  }
+</style>
+
+<script>
+  const progressBar = document.getElementById("scroll-progress") as HTMLElement;
+  const onScroll = () => {
+    const scroll = document.body.scrollTop || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const percentage = height ? (scroll / height) * 100 : 100;
+    console.log({scroll, height, percentage})
+    progressBar.style.width = percentage + "%";
+  };
+
+  window.addEventListener("scroll", onScroll);
+  window.addEventListener("load", onScroll);
+</script>
 
 <style is:global>
   :root {
