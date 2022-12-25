@@ -1,0 +1,21 @@
+/* Works on Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--bc)) transparent;
+}
+
+/* Works on Chrome, Edge, and Safari */
+*::-webkit-scrollbar {
+  max-width: 4px;
+  max-height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--bc));
+  border-radius: 4px;
+  border: none;
+}
