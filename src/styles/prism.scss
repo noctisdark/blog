@@ -1,4 +1,20 @@
 // from https://github.com/PrismJS/prism-themes/blob/master/themes/prism-one-light.css
+code[class*="language-"]::-moz-selection,
+code[class*="language-"] ::-moz-selection,
+pre[class*="language-"]::-moz-selection,
+pre[class*="language-"] ::-moz-selection {
+  background: #3ea1e250;
+  color: inherit;
+}
+
+code[class*="language-"]::selection,
+code[class*="language-"] ::selection,
+pre[class*="language-"]::selection,
+pre[class*="language-"] ::selection {
+  background: #3ea1e250;
+  color: inherit;
+}
+
 .token.comment,
 .token.prolog,
 .token.cdata {

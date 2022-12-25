@@ -6,12 +6,13 @@
   
   .tab {
     color: hsl(var(--bc));
-    border-bottom: unset;
     --tab-radius: 0.25em;
+    border-color: hsl(var(--bc))
   }
 
   .tab-active {
-    --tab-bg: hsl(var(--b3));
+    background-color: hsl(var(--b2));
+    border-color: transparent;
   }
 
   [data-tab-name] {

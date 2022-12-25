@@ -9,7 +9,7 @@ const CodeTabs = ({ activeTab, children, ...slots }) => {
         {slotEntries.map(([name]) => (
           <>
             <span
-              class={`tab tab-lifted${name === activeTab ? " tab-active" : ""}`}
+              class={`tab tab-bordered${name === activeTab ? " tab-active" : ""}`}
             >
               {name}
             </span>
