@@ -1,0 +1,24 @@
+.code-tabs {
+  .tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+  }
+  
+  .tab {
+    color: hsl(var(--bc));
+    border-bottom: unset;
+    --tab-radius: 0.25em;
+  }
+
+  .tab-active {
+    --tab-bg: hsl(var(--b3));
+  }
+
+  [data-tab-name] {
+    display: none;
+  }
+
+  [data-tab-active=true] {
+    display: block;
+  }
+}

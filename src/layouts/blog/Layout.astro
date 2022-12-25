@@ -20,7 +20,19 @@ const mainTag = tags?.[0] || "anonymous";
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
-    <slot />
+    <article>
+      <slot />
+    </article>
   </main>
   <Footer style="border-top: 1px solid currentColor" />
 </Layout>
+
+<style lang="scss">
+  @import "/src/styles/prism.scss";
+</style>
+
+<script>
+  import setupCodeTabs from "@scripts/codetabs";
+
+  setupCodeTabs();
+</script>
