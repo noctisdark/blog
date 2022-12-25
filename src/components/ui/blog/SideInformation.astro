@@ -1,0 +1,43 @@
+---
+import Bookmark from "@components/icons/Bookmark.astro";
+import Date from "@components/icons/Date.astro";
+import Time from "@components/icons/Time.astro";
+import Button from "@components/ui/Button.astro";
+import { formatDate } from "@scripts/date";
+
+interface Props {
+  timestamp: number;
+  duration: number;
+}
+
+const { timestamp, duration } = Astro.props;
+---
+
+<aside class="mb-4 items-center">
+  <span class="inline-flex items-center gap-2 ml-4">
+    <Date class="w-4 h-4" />
+    <span>{formatDate(timestamp)}</span>
+  </span>
+
+  <span class="px-4">·</span>
+
+  <span class="inline-flex items-center gap-2">
+    <Time class="w-4 h-4" />
+    {duration} min read
+  </span>
+
+  <span class="pl-4 invisible md:visible actions-divider"></span>
+
+  <span class="block md:inline">
+    <Button class="btn-ghost gap-2">
+      <Bookmark class="w-4 h-4" />
+      Bookmark
+    </Button>
+  </span>
+</aside>
+
+<style>
+  .actions-divider {
+    border-right: 1px solid currentColor;
+  }
+</style>
