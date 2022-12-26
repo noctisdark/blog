@@ -28,12 +28,12 @@ const { timestamp, duration } = Astro.props;
 
   <span class="pl-4 invisible md:visible actions-divider"></span>
 
-  <span class="block md:inline">
+  <div class="tooltip w-fit block md:inline-block" data-tip="Work in Progress">
     <Button class="btn-ghost gap-2">
       <Bookmark class="w-4 h-4" />
       Bookmark
     </Button>
-  </span>
+  </div>
 </aside>
 
 <style>
