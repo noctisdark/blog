@@ -2,7 +2,7 @@
 import Navigation from "@layouts/Navigation.astro";
 ---
 
-<header class="flex flex-col bg-base-300">
+<header class="flex flex-col w-full bg-base-300">
   <Navigation>
     <div class="px-6 max-w-screen-lg w-full" slot="breadcrumbs">
       <div class="text-sm breadcrumbs">
@@ -20,10 +20,6 @@ import Navigation from "@layouts/Navigation.astro";
 </header>
 
 <style>
-  header {
-    z-index: 1;
-  }
-
   #scroll-progress {
     display: block;
     height: 2px;
@@ -54,7 +50,7 @@ import Navigation from "@layouts/Navigation.astro";
   }
 
   header {
-    width: 100%;
+    z-index: 1;
     height: var(--header-height);
   }
 </style>

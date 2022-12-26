@@ -1,8 +1,11 @@
 ---
+import "@styles/prism.scss";
+
 import BlogHeader from "./Header.astro";
 import Footer from "@layouts/Footer.astro";
 import Layout from "@layouts/Layout.astro";
 import Metadata from "@components/ui/blog/Metadata.astro";
+import FloatingNavigation from "@components/ui/blog/FloatingNavigation.astro";
 
 const {
   title,
@@ -34,13 +37,30 @@ const {
       <h1 class="text-center">{title}</h1>
       <Metadata timestamp={timestamp} duration={duration} tag={tag} />
       <slot />
+      
+      <FloatingNavigation>
+        <ol>
+          <li>Introduction To Sericata</li>
+          <li>
+            Préparation du TP
+            <ol>
+              <li>Hello</li>
+            </ol>  
+          </li>
+        </ol>
+      </FloatingNavigation>
+      
     </article>
   </main>
   <Footer style="border-top: 1px solid currentColor" />
 </Layout>
 
-<style lang="scss">
-  @import "/src/styles/prism.scss";
+<style>
+
+.glow {
+  text-shadow: 0 0 8px;
+}
+
 </style>
 
 <script>
@@ -48,9 +68,3 @@ const {
 
   setupCodeTabs();
 </script>
-
-<style lang="scss">
-  .glow {
-    text-shadow: 0 0 10px;
-  }
-</style>
