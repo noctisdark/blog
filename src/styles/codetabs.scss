@@ -2,12 +2,19 @@
   .tabs {
     flex-wrap: nowrap;
     overflow-x: auto;
+
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    scrollbar-width: none; /* Firefox */
+    
+    &::-webkit-scrollbar {
+      display: none; /* Safari and Chrome */
+    }
   }
-  
+
   .tab {
     color: hsl(var(--bc));
     --tab-radius: 0.25em;
-    border-color: hsl(var(--bc))
+    border-color: hsl(var(--bc));
   }
 
   .tab-active {
@@ -19,7 +26,7 @@
     display: none;
   }
 
-  [data-tab-active=true] {
+  [data-tab-active="true"] {
     display: block;
   }
 }

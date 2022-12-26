@@ -14,6 +14,11 @@ module.exports = {
               "--tw-prose-pre-bg": "hsl(var(--b2))",
               border: "unset",
             },
+            
+            code: {
+              "--tw-prose-code-bg": "hsl(var(--b2))",
+              backgroundColor: "var(--tw-prose-code-bg)"
+            },
 
             h2: {
               paddingBottom: "0.25em",
