@@ -8,36 +8,41 @@ import { formatDate } from "@scripts/date";
 interface Props {
   timestamp: number;
   duration: number;
+  tag: string;
 }
 
-const { timestamp, duration } = Astro.props;
+const { timestamp, duration, tag } = Astro.props;
 ---
 
-<aside class="mb-4 items-center">
+<section>
   <span class="inline-flex items-center gap-2 ml-4">
     <Date class="w-4 h-4" />
     <span>{formatDate(timestamp)}</span>
   </span>
 
-  <span class="px-4">·</span>
+  <span class="px-2">·</span>
 
   <span class="inline-flex items-center gap-2">
     <Time class="w-4 h-4" />
     {duration} min read
   </span>
 
-  <span class="pl-4 invisible md:visible actions-divider"></span>
+  <span class="pl-4 invisible sm:visible actions-divider"></span>
 
-  <div class="tooltip w-fit block md:inline-block" data-tip="Work in Progress">
+  <div class="tooltip tooltip-bottom w-fit block sm:inline-block" data-tip="Work in Progress">
     <Button class="btn-ghost gap-2">
       <Bookmark class="w-4 h-4" />
       Bookmark
     </Button>
   </div>
-</aside>
+</section>
 
 <style>
   .actions-divider {
     border-right: 1px solid currentColor;
+  }
+
+  .glow {
+    text-shadow: 0 0 10px;
   }
 </style>

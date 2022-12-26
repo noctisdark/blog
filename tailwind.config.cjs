@@ -1,10 +1,17 @@
 /** @type {import('tailwindcss').Config} */
+
+const defaultTheme = require('tailwindcss/defaultTheme')
+
 module.exports = {
   mode: "jit",
   content: ["./src/**/*.{astro,html,js,jsx,md,mdx,svelte,ts,tsx,vue}"],
   theme: {
+    fontFamily: {
+      ...defaultTheme.fontFamily,
+      'mono': ['"Fira Code"', ...defaultTheme.fontFamily.mono]
+    },
     extend: {
-      typography: (theme) => ({
+      typography: {
         DEFAULT: {
           css: {
             pre: {
@@ -31,7 +38,7 @@ module.exports = {
             }
           },
         },
-      }),
+      },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("daisyui")],

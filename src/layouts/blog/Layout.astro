@@ -2,25 +2,37 @@
 import BlogHeader from "./Header.astro";
 import Footer from "@layouts/Footer.astro";
 import Layout from "@layouts/Layout.astro";
+import Metadata from "@components/ui/blog/Metadata.astro";
 
-const { title, slug, description, tags, pubDate, image, author } = Astro.props
-  .frontmatter
-  ? Astro.props.frontmatter
-  : Astro.props;
-const mainTag = tags?.[0] || "anonymous";
+const {
+  title,
+  slug,
+  description,
+  tag = "anonymous",
+  timestamp,
+  duration,
+  image,
+  author,
+} = Astro.props.frontmatter ? Astro.props.frontmatter : Astro.props;
 ---
 
-<Layout title={title}>
+<Layout title={title} description={description}>
   <BlogHeader>
     <ul slot="breadcrumbs-items">
       <li><a href="/">/</a></li>
-      <!--  TODO: <li><a href={`/tags/${mainTag}`} aria-disabled="true">{mainTag}</a></li> -->
-      <li>{mainTag}</li>
+      <li>{tag}</li>
       <li><a href={`/blog/${slug}`}>{title}</a></li>
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
+    
+    <div class="text-center">
+      <code class="text-lg bg-transparent text-info glow m-4">/* {tag} */</code>
+    </div>
+
     <article>
+      <h1 class="text-center">{title}</h1>
+      <Metadata timestamp={timestamp} duration={duration} tag={tag} />
       <slot />
     </article>
   </main>
@@ -36,3 +48,9 @@ const mainTag = tags?.[0] || "anonymous";
 
   setupCodeTabs();
 </script>
+
+<style lang="scss">
+  .glow {
+    text-shadow: 0 0 10px;
+  }
+</style>
