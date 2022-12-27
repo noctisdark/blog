@@ -1,0 +1,23 @@
+---
+import "@styles/floating-navigation.scss";
+
+import List from "@components/icons/List.astro";
+import Button from "../Button.astro";
+---
+
+<section
+  id="floatingnav-root"
+  aria-label="Article Navigation"
+  class="floating-navigation not-prose text-xs select-none"
+>
+  <Button class="btn-ghost active" tabindex="0">
+    <List class="h-6 w-6" />
+  </Button>
+  <nav class="max-w-full max-w-screen-lg" tabindex="0"></nav>
+</section>
+
+
+<script>
+  import { createFloatingNavigation } from "@scripts/floatingNavigation";
+  createFloatingNavigation();
+</script>

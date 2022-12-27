@@ -1,2 +1,6 @@
 @import "./fonts.scss";
 @import "./scrollbars.scss";
+
+html {
+  scroll-behavior: smooth;
+}

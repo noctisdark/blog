@@ -1,5 +1,5 @@
 ---
-import '@styles/common.scss';
+import "@styles/common.scss";
 
 export interface Props {
   title: string;
@@ -16,13 +16,12 @@ const { title, description } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
-    {description && (
-      <meta name="description" content={description} />
-    )}
+    {description && <meta name="description" content={description} />}
     <title>{title}</title>
     <script is:inline>
       /* rogue script to set the theme at the speed of light */
-      if ( localStorage.getItem("theme") ) document.documentElement.dataset.theme =  localStorage.getItem("theme");
+      if (localStorage.getItem("theme"))
+        document.documentElement.dataset.theme = localStorage.getItem("theme");
     </script>
   </head>
   <body class="flex flex-col min-h-screen items-center">
@@ -32,5 +31,5 @@ const { title, description } = Astro.props;
 
 <script>
   import { getCurrentTheme, applyTheme } from "@scripts/theme.js";
-  applyTheme(getCurrentTheme())
+  applyTheme(getCurrentTheme());
 </script>

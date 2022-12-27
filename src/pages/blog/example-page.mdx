@@ -1,14 +1,291 @@
 ---
 layout: ../../layouts/blog/Layout.astro
-title: "Astro, Vite and MDX test"
+title: "TP Détection d’intrusions (Suricata)"
 description: "Lorem ipsum dolor sit amet"
 author: "Iniubong Obonguko"
-pubDate: "20 Aug, 2022"
+timestamp: 1672001381113
+duration: 12
+tag: "Tutorial"
 image: "https://images.unsplash.com/photo-1664380619395-a25d867b5fb9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
 slug: "example-page"
 ---
-## Story about Old days
-In the olden days, Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Vitae ultricies leo integer malesuada nunc vel risus commodo viverra. Adipiscing enim eu turpis egestas pretium. Euismod elementum nisi quis eleifend quam adipiscing. In hac habitasse platea dictumst vestibulum. Sagittis purus sit amet volutpat. Netus et malesuada fames ac turpis egestas. Eget magna fermentum iaculis eu non diam phasellus vestibulum lorem. Varius sit amet mattis vulputate enim. Habitasse platea dictumst quisque sagittis. Integer quis auctor elit sed vulputate mi. Dictumst quisque sagittis purus sit amet.
 
-## Conclusion
-Morbi tristique senectus et netus. Id semper risus in hendrerit gravida rutrum quisque non tellus. Habitasse platea dictumst quisque sagittis purus sit amet. Tellus molestie nunc non blandit massa. Cursus vitae congue mauris rhoncus. Accumsan tortor posuere ac ut. Fringilla urna porttitor rhoncus dolor. Elit ullamcorper dignissim cras tincidunt lobortis. In cursus turpis massa tincidunt dui ut ornare lectus. Integer feugiat scelerisque varius morbi enim nunc. Bibendum neque egestas congue quisque egestas diam. Cras ornare arcu dui vivamus arcu felis bibendum. Dignissim suspendisse in est ante in nibh mauris. Sed tempus urna et pharetra pharetra massa massa ultricies mi.
+## Introduction à Suricata
+
+[Suricata](https://suricata.io/) est un système de détection d'intrusion (IDS) et de prévention d'intrusion (IPS) open-source conçu pour détecter et prévenir les cybermenaces en temps réel. C'est un outil efficace et flexible qui peut être utilisé pour surveiller le trafic réseau et identifier les activités malveillantes, telles que les attaques réseau, les violations de données et les infections par des logiciels malveillants. Suricata utilise une combinaison de techniques de détection basées sur les signatures et les anomalies pour identifier les menaces, et il peut être configuré pour alerter les administrateurs et prendre des mesures pour atténuer les menaces identifiées.
+
+import CodeTabs from "@components/ui/blog/CodeTabs.tsx";
+
+{/* TODO MENU OBJECT */}
+
+## Random
+
+<CodeTabs activeTab="One.js">
+  <Fragment slot="One.js">
+    ```javascript 
+      console.log("One!");
+    ```
+  </Fragment>
+   <Fragment slot="OneOne.js">
+    ```javascript 
+      console.log("OneOne !");
+    ```
+  </Fragment>
+   <Fragment slot="OneOneOne.js">
+    ```javascript 
+      console.log("OneOneOne !");
+    ```
+  </Fragment>
+   <Fragment slot="OneOneOneOne.js">
+    ```javascript 
+      console.log("OneOneOneOne !");
+    ```
+  </Fragment>
+   <Fragment slot="OneOneOneOneOne.js">
+    ```javascript 
+      console.log("OneOneOneOneOne !");
+    ```
+  </Fragment>
+
+  <Fragment slot="server.js">
+    ```javascript    
+/**
+ * Module dependencies.
+ */
+
+var express = require('express');
+
+var app = module.exports = express.createServer();
+
+// Configuration
+
+app.configure(function(){
+app.set('views', **dirname + '/views');
+app.set('view engine', 'jade');
+app.use(express.bodyParser());
+app.use(express.methodOverride());
+app.use(require('stylus').middleware({ src: **dirname + '/public' }));
+app.use(app.router);
+app.use(express.static(\_\_dirname + '/public'));
+});
+
+app.configure('development', function(){
+app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
+
+app.configure('production', function(){
+app.use(express.errorHandler());
+});
+
+// Routes
+
+app.get('/', function(req, res){
+res.render('index', {
+title: 'Express'
+});
+});
+
+app.listen(3000);
+console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+
+````
+
+  </Fragment>
+</CodeTabs>
+
+## Préparation du TP
+
+### 1. Verification de la configuration réseau des VMs
+
+##### A. Adresses IP:
+
+L'execution de la commande `$ ip -4 addr show | grep inet` sur les differentes machine donne les résultats suivante.
+
+- Sous la machine `server`:
+  ![](https://i.imgur.com/s4Md708.png)
+- Sous la machine `backtrack`:
+  ![](https://i.imgur.com/S1eoPVr.png)
+- Sous la machine `suricata`:
+  ![](https://i.imgur.com/jLKlMTn.png)
+
+##### B. Tables de routage:
+
+L'execution de la commande `$ ip route` sur les differentes machine donne les résultats suivante.
+
+- Sous la machine `server`:
+  ![](https://i.imgur.com/gkgmVyc.png)
+- Sous la machine `backtrack`:
+  ![](https://i.imgur.com/4c8Zli3.png)
+- Sous la machine `suricata`:
+  ![](https://i.imgur.com/jA82YQF.png)
+
+Et sur un `ipconfig /all` sur mon ordinateur (hôte windows):
+![](https://i.imgur.com/GWkwR31.png)
+
+Ce qui correspond à cette image:
+![](https://i.imgur.com/pUgQvyi.png)
+
+### 2. Initialisation
+
+1. La configuration du réseau est faite en étape précedente.
+2. Le machine `backtrack` peut bien communiquer avec `server`.
+   ![](https://i.imgur.com/hzm66Kj.png)
+3. Suricata is dead and we killed him
+   ![](https://i.imgur.com/fRnjMNJ.png)
+4. On utilise `nano` pour modifier la configuration de suricata afin d'activer la sauvegarde des paquets avec
+   ![](https://i.imgur.com/k7JAmmg.png)
+5. On execute `$ suricata /etc/suricata/suricata.yaml -i eth0` pour lancer suricata en mode capture live sur l'interface `eth0`.
+   on execute `$ ping 192.168.5.2` depuis la machine `backtrack`.
+   Un nouveau fichier pcap apprait. On utilise `wireshark` pour le lire:
+   `$ wireshark /var/log/suricata/log.pcap.1671321732`.
+   ![](https://i.imgur.com/x72UqNQ.png)
+   On observe un échange `echo` et `reply` du protocol `ICMP` entre les deux machines.
+   On capture aussi le requêtes `ARP` trouver les addresses IP de la gateway (machine `suricata`) et la machine `server`.
+
+## Fonctions NIDS (Network-based Intrusion Detection System)
+
+Le réseau à surveiller est DMZ, où machine `server` est connectée.
+Les attaques sont initiées depuis le réseau WAN, où la machine `backtrack` est connectée.
+![](https://i.imgur.com/yC3uZ9n.png)
+
+### 1. Détection de balayage de ports
+
+##### A. Mise à jours de règles
+
+Mise à jour des sources: `$ suricata-update update-sources`
+Mise à jour la base de signatures de suricata: `$ suricata-update`
+
+Les règles disponibles listés ci-dessous:
+![](https://i.imgur.com/YPP8m9Y.png)
+
+Activation de l’ensemble des règles Emerging Threats open-source:
+`$ suricata-update enable-source et/open && suricata-update`
+Les règles sont écrites dans le fichier `/var/lib/suricata/rules/suricata.rules`.
+Dans le fichier de configuration `/etc/suricata/suricata.yaml`, on prend en compte ce dernier:
+![](https://i.imgur.com/yCfr8ph.png)
+Je ne suis pas fan de modifier les paramètres par défault mais j'ai été motivé par [cette PR](https://redmine.openinfosecfoundation.org/issues/4912). (askip suricata et suricata-update n'étaient pas installés ensemble)
+
+##### B. nmap
+
+On lance `$ nmap 192.168.5.2` depuis la machine `backtrack`.
+Regardons le contenu du fichier de log `/var/log/suricata/fast.log`, et on remarque:
+![](https://i.imgur.com/UbFO9JR.png)
+
+Suricata a détecté le scan par nmap. Voici quelques signatures mis en jeux sont:
+
+> 2100469, 2009583, 2009582, 200537, 200545, 2009584, ...
+
+L'astuce est de regarder la préfixe que Suricata ajoute sur chaque ligne d'alerte: C'est l'id de la signature (sid) qui l'a produite.
+
+On peut lire la règle qui a produit (par exemple) la deuxième alerte:
+![](https://i.imgur.com/CxYCzo2.png)
+Cette règle produit une alerte pour toute connection TCP depuis `$EXTERNAL_NET` vers `$HOME_NET`, quelque soit les ports et produit le message `ET SCAN NMAP -sS window 3072` si quelques conditions conditions sur l'entête TCP sont vérifiées.
+Ces conditions sont plus explicités dans la documentation de règles de Suricata, précisément [Header keywords](https://suricata.readthedocs.io/en/suricata-6.0.4/rules/header-keywords.html) et [Thresholding keywords](https://suricata.readthedocs.io/en/suricata-6.0.4/rules/thresholding.html).
+
+### 2. Limites de la détection par signature
+
+##### Exemple d'une signature
+
+![](https://i.imgur.com/wUNdr8L.png)
+Cette signature est censée detecter les activité de minage de crypto-monnaies.
+Elle crée une alert sur toute méthode POST du protocole HTTP depuis le `$HOME_NET` vers `$EXTERNAL_NET` quelque soit les ports si elle définit le custom header `X-Mining-Extensions`.
+
+##### Déclenchement intentionnel de l'alerte
+
+On utilise netcat pour écouter une connection HTTP sur la machine `backtrack` et envoie une requête POST avec le header malveillant depuis `server`.
+![](https://i.imgur.com/3hers0j.png)
+![](https://i.imgur.com/iOoMc0C.png)
+
+Sur la machine `suricata`, 3 alertes sont généré dont deux liées à curl et une à notre header malveillant.
+![](https://i.imgur.com/IaRpcHl.png)
+Selon cette page sur [Bitcoin Wikipedia](https://en.bitcoin.it/wiki/Getwork), le serveur subit une instance de **cryptojacking**. C'est est une forme de piratage qui consiste à utiliser la puissance de calcul de l'ordinateur d'une personne sans son consentement pour extraire des cryptomonnaies.
+
+### 3. Écriture de signature
+
+##### Vérification du fonctionnement du server
+
+On lance le serveur depuis la machine `server`:
+![](https://i.imgur.com/oxXf3vl.png)
+Puis on cherche la page `index.html` en utilisant curl:
+![](https://i.imgur.com/aNXBz8y.png)
+=> _ça fonctionne bien_ .
+
+##### Exploitation de la vulnerabilité "Directory Traversal"
+
+Le serveur envoie les pages situées dans `/usr/local/httpd/buggyhttp/html`. Grâce a cette vulnerabilité, si on cherche la page `../../../../../etc/shadow` on sera sur le chemin `/etc/shadow` du fichier des mots de passes. Comme le serveur s'éxecute avec les droits root, il aura accès au fichier en mode lecture et on pourra le leaker.
+![](https://i.imgur.com/gLgVhAN.png)
+
+##### Détection du vol du fichier `/etc/shadow`
+
+On utilise une règle simple: si la route contient `/etc/shadow` on alerte.
+Elle est efficace parce que eventuellement tous les chemins mènent à ~~rome~~ `/etc/shadow` en présence de cette vulnerabilité.
+On ajoute
+
+```bash
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Password file leak!"; content:"/etc/shadow";sid:1000001;)
+````
+
+à `/var/lib/suricata/rules/suricata.rules`.
+
+On relance suricata, on effectue la même requête pour cherche le fichier des mot de passes et on regarde le ficher des alertes:
+![](https://i.imgur.com/ppvCgkn.png)
+
+Qui correspond à la signature qu'on vient d'ajouter (look at the `sid`).
+
+##### Amélioration de la règle
+
+- Une classe d'attaque pertinente: `classtype: successful-recon-limited;`.
+- Je pense qu'il n'y a pas besoin de modifier le flux `$EXTERNAL_NET any -> $HOME_NET any`
+- On peut le restreidre le flux à `flow:established, to_server;`.
+- On ajoute `http.uri` après le content pour la précision.
+- Finalement pourra aussi préciser le port du serveur `buggyhttp` mais ça devient trop spécifique.
+
+Ceci produit la règle suivante:
+
+```bash
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Password file leak!"; flow: established, to_server; classtype: successful-recon-limited; content:"/etc/shadow"; http_uri; sid:1000001;)
+```
+
+Maintenant regardons si la signature marche encore:
+![](https://i.imgur.com/RCrUdwu.png)
+=> _Et oui_.
+
+Dans mon cas, `/etc/./shadow` et `/etc/python/../shadow` ont généré une alerte qui correspond à la signature que je viens d'écrire. Si ça n'avait pas marché, j'aurais dit:
+
+> `/etc/./shadow` correspond au même fichier que `/etc/shadow` mais il n'est pas reconnu par l'expression dans la signature. Pour ça il faudra utiliser une expression plus intelligente qui tient en compte l'expressions des chemins de linux.
+
+Après lecture de la [documentation](https://suricata.readthedocs.io/en/suricata-6.0.0/rules/http-keywords.html) de Suricata relative au protocole HTTP. Apparement cet avantage vient de la précision `http.uri` qui normalize le chemin en contraite de `http.uri.raw` ou si on ne précise pas du tout.
+
+##### Amélioration de la règle (continued)
+
+Le serveur apache n'est pas vulnerable à `Directory Traversal`. On ne reçoit plus le contenu de `/etc/shadow` mais Suricata continue à générer l'alerte (nouveau port).
+C'est une **fausse alerte**, un **faux positif**, une **perte de temps**, etc...
+
+On peut modifier la signature pour décrire un `Attempted password file leak` et une crée une nouvelle signature pour générer une alerte sauf si le serveur répond avec un _fichier_ qui contient `root:`.
+
+```bash
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Attempted password file leak!"; flow: established, to_server; classtype: attempted-recon; content:"/etc/shadow"; http_uri; sid:1000001;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"Password file leak!"; flow: established, to_client; classtype: successful-recon-limited; file_data; content:"root:"; sid:1000002;)
+```
+
+Cette méthode génère deux alerte quand l'attaque réussit et une seule alerte quand l'attaque échoue:
+
+![](https://i.imgur.com/X3LdNux.png)
+
+Pour corréler les deux alertes, on utilise flowbits.
+En place de génerer une alerte pour la tentative de vol, on met un flag `steal_attempt` sur la connection TCP. Si dans la suite de cette connection, si on match la 2ème signature, ayant le flag actif donc on sait on est en train de voler le fichier des mots de passe par `Directory Traversal`. Les nouvelles règles sont:
+
+```bash
+alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Attempted password file leak!"; flow: established, to_server; classtype: attempted-recon; content:"/etc/shadow"; http_uri; flowbits:set, steal_attempt; flowbits: noalert; sid:1000001;)
+alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"Password file leak!"; flow: established, to_client; classtype: successful-recon-limited; file_data; content:"root:"; flowbits:isset, steal_attempt; sid:1000002;)
+```
+
+Une tentative de vol ne génère plus d'alerte: c'est seulement le vol qui produit une alerte maintenant. Peut-être c'est le temps de drop ces packets ?
+
+![](https://i.imgur.com/I63sTrT.png)
+
+#### Closing remarks:
+
+Merci de nous avoir donné la chance de continuer le TP hors de classe. Pour moi c'était une chance pour explorer le sujet en profondeur.
+
+{/* Content END */}

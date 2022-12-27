@@ -1,0 +1,151 @@
+/* TODO: use scss variables */
+
+.floating-navigation {
+  --container-position-y: 16px;
+  --container-padding-x: 16px;
+  --nav-padding: 8px;
+  --nav-margin-y: 8px;
+  --list-padding-y: 1em;
+  --list-padding-x: 1em;
+  --item-hover-padding-x: 0.25em;
+  --selection-track-width: 1px;
+  --selection-thumb-width: 3px;
+  --item-height: 16px;
+
+  padding: 0 var(--container-padding-x);
+  display: flex;
+  flex-flow: column-reverse;
+  align-items: flex-end;
+
+  nav {
+    position: relative;
+    width: 100%;
+    padding: var(--nav-padding);
+    margin: var(--nav-margin-y) 0;
+    border-radius: 5px;
+
+    // first list
+    & > ul {
+      padding-top: var(--list-padding-y);
+      padding-bottom: var(--list-padding-y);
+      border-left: var(--selection-track-width) solid hsla(var(--bc) / 0.6);
+    }
+
+    // all lists
+    ul {
+      list-style-type: none;
+      color: hsla(var(--bc) / 0.6);
+      padding-left: var(--list-padding-x);
+    }
+
+    // nested lists
+    li > ul {
+      display: none;
+    }
+
+    // when item is in view
+    li.item-visible {
+      color: hsl(var(--bc));
+
+      & > ul {
+        display: block;
+      }
+    }
+
+    span {
+      cursor: pointer;
+      display: block;
+      white-space: pre;
+      text-overflow: ellipsis;
+      width: 100%;
+      overflow: hidden;
+      height: var(--item-height);
+
+      &:hover {
+        padding-left: var(--item-hover-padding-x);
+        color: hsl(var(--bc));
+      }
+    }
+  }
+
+  .visibility-indicator {
+    content: "";
+    display: block;
+    background-color: currentColor;
+    position: absolute;
+    width: var(--selection-thumb-width);
+    top: var(--list-padding-y);
+    bottom: var(--list-padding-y);
+    left: calc(
+      var(--nav-padding) +
+        (var(--selection-track-width) - var(--selection-thumb-width)) / 2
+    );
+  }
+
+  // small screens
+  @media screen and (max-width: 1535px) {
+    position: fixed;
+    bottom: var(--container-position-y);
+    right: 0;
+    width: fit-content;
+    max-width: 100%;
+
+    nav {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    // when the show button is clicked
+    &:focus-within nav {
+      visibility: visible;
+      pointer-events: unset;
+      background-color: hsl(var(--b1));
+    }
+  }
+  
+  // big screens
+  @media screen and (min-width: 1536px) {
+    width: calc((100vw - 1024px) / 2);
+    position: fixed;
+    right: 0;
+    top: calc(var(--header-height) + var(--container-position-y));
+
+    button {
+      display: none;
+    }
+  }
+}
+
+.section-areas {
+  visibility: hidden;
+  position: absolute;
+  z-index: -1;
+  padding: 1em;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  .area {
+    position: absolute;
+    left: 0;
+    right: 0;
+  }
+}
+
+@keyframes glow-animation {
+  0%,
+  70% {
+    color: hsl(var(--in));
+    text-shadow: 0 0 16px;
+  }
+
+  100% {
+    text-shadow: unset;
+    color: hsl(var(--bc));
+  }
+}
+
+.glow-animation {
+  animation: glow-animation 2s ease-out;
+}

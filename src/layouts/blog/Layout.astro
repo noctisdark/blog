@@ -28,43 +28,31 @@ const {
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
-    
     <div class="text-center">
       <code class="text-lg bg-transparent text-info glow m-4">/* {tag} */</code>
     </div>
 
-    <article>
+    <article class="main-area">
       <h1 class="text-center">{title}</h1>
       <Metadata timestamp={timestamp} duration={duration} tag={tag} />
       <slot />
-      
-      <FloatingNavigation>
-        <ol>
-          <li>Introduction To Sericata</li>
-          <li>
-            Préparation du TP
-            <ol>
-              <li>Hello</li>
-            </ol>  
-          </li>
-        </ol>
-      </FloatingNavigation>
-      
+      <FloatingNavigation />
     </article>
   </main>
   <Footer style="border-top: 1px solid currentColor" />
 </Layout>
 
 <style>
+  .main-area {
+    position: relative;
+  }
 
-.glow {
-  text-shadow: 0 0 8px;
-}
-
+  .glow {
+    text-shadow: 0 0 8px;
+  }
 </style>
 
 <script>
   import setupCodeTabs from "@scripts/codetabs";
-
   setupCodeTabs();
 </script>

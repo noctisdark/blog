@@ -28,6 +28,7 @@ export const handleTabClick = (e: Event) => {
   if (targetTab === activeTab) return;
   if ( activeTab ) setTabActive(activeTab, false);
   setTabActive(targetTab, true);
+  window.dispatchEvent(new Event("codetab-change"));
 };
 
 const setupCodeTabs = () => {
