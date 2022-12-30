@@ -1,97 +1,17 @@
 ---
-layout: ../../layouts/blog/Layout.astro
-title: "TP Détection d’intrusions (Suricata)"
-description: "Lorem ipsum dolor sit amet"
-author: "Iniubong Obonguko"
+layout: "@layouts/blog/Layout.astro"
+title: "TP Détection d'intrusions (Suricata)"
+description: "TP Détection d'intrusions (Suricata)"
+author: "Majed Abdennadher"
 timestamp: 1672001381113
-duration: 12
-tag: "Tutorial"
-image: "https://images.unsplash.com/photo-1664380619395-a25d867b5fb9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&q=80&w=1080"
+duration: 15
+tag: "Lab"
 slug: "example-page"
 ---
 
 ## Introduction à Suricata
 
 [Suricata](https://suricata.io/) est un système de détection d'intrusion (IDS) et de prévention d'intrusion (IPS) open-source conçu pour détecter et prévenir les cybermenaces en temps réel. C'est un outil efficace et flexible qui peut être utilisé pour surveiller le trafic réseau et identifier les activités malveillantes, telles que les attaques réseau, les violations de données et les infections par des logiciels malveillants. Suricata utilise une combinaison de techniques de détection basées sur les signatures et les anomalies pour identifier les menaces, et il peut être configuré pour alerter les administrateurs et prendre des mesures pour atténuer les menaces identifiées.
-
-import CodeTabs from "@components/ui/blog/CodeTabs.tsx";
-
-{/* TODO MENU OBJECT */}
-
-## Random
-
-<CodeTabs activeTab="One.js">
-  <Fragment slot="One.js">
-    ```javascript 
-      console.log("One!");
-    ```
-  </Fragment>
-   <Fragment slot="OneOne.js">
-    ```javascript 
-      console.log("OneOne !");
-    ```
-  </Fragment>
-   <Fragment slot="OneOneOne.js">
-    ```javascript 
-      console.log("OneOneOne !");
-    ```
-  </Fragment>
-   <Fragment slot="OneOneOneOne.js">
-    ```javascript 
-      console.log("OneOneOneOne !");
-    ```
-  </Fragment>
-   <Fragment slot="OneOneOneOneOne.js">
-    ```javascript 
-      console.log("OneOneOneOneOne !");
-    ```
-  </Fragment>
-
-  <Fragment slot="server.js">
-    ```javascript    
-/**
- * Module dependencies.
- */
-
-var express = require('express');
-
-var app = module.exports = express.createServer();
-
-// Configuration
-
-app.configure(function(){
-app.set('views', **dirname + '/views');
-app.set('view engine', 'jade');
-app.use(express.bodyParser());
-app.use(express.methodOverride());
-app.use(require('stylus').middleware({ src: **dirname + '/public' }));
-app.use(app.router);
-app.use(express.static(\_\_dirname + '/public'));
-});
-
-app.configure('development', function(){
-app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
-});
-
-app.configure('production', function(){
-app.use(express.errorHandler());
-});
-
-// Routes
-
-app.get('/', function(req, res){
-res.render('index', {
-title: 'Express'
-});
-});
-
-app.listen(3000);
-console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
-
-````
-
-  </Fragment>
-</CodeTabs>
 
 ## Préparation du TP
 
@@ -284,7 +204,7 @@ Une tentative de vol ne génère plus d'alerte: c'est seulement le vol qui produ
 
 ![](https://i.imgur.com/I63sTrT.png)
 
-#### Closing remarks:
+## Closing remarks:
 
 Merci de nous avoir donné la chance de continuer le TP hors de classe. Pour moi c'était une chance pour explorer le sujet en profondeur.
 

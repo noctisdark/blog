@@ -1,5 +1,20 @@
 ---
 import BlogLayout from "@layouts/blog/Layout.astro";
+const frontmatter = {
+  title: "Blog home page",
+  description: "Blog home page",
+  timestamp: +(new Date),
+  duration: 1,
+}
 ---
 
-<BlogLayout title="hello" />
+<BlogLayout title="hello" frontmatter={frontmatter}>
+<h2 id="home-page-state">State of the home page</h2>
+
+<p>
+  In short: <code>W.I.P</code>.
+<p/>
+<p>
+  Somes pages are online and the home page will be available soon. 
+</p>
+</BlogLayout/>
