@@ -10,10 +10,10 @@ const months = [
   "Sep",
   "Oct",
   "Nov",
-  "Dec"
+  "Dec",
 ];
 
 export const formatDate = (timestamp: number) => {
   const date = new Date(timestamp);
-  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`
+  return `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
 };

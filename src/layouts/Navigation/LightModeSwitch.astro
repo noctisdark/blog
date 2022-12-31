@@ -5,7 +5,6 @@ import Button from "@components/ui/Button.astro";
 ---
 
 <label class="swap swap-rotate btn btn-ghost">
-  
   <input id="themeToggle" type="checkbox" class="w-5 h-5" checked />
   <DarkTheme class="swap-on" />
   <LightTheme class="swap-off" />
@@ -13,17 +12,19 @@ import Button from "@components/ui/Button.astro";
 
 <script>
   import { toggleTheme, applyTheme, getCurrentTheme } from "@scripts/theme";
-  
-  const lightThemeSwitch = document.getElementById("themeToggle") as HTMLInputElement;
+
+  const lightThemeSwitch = document.getElementById(
+    "themeToggle"
+  ) as HTMLInputElement;
 
   const handleToggleClick = () => {
     const theme = document.documentElement.dataset.theme,
       nextTheme = theme === "dark" ? "light" : "dark";
-    
+
     applyTheme(nextTheme);
-    lightThemeSwitch.checked = (getCurrentTheme() === "dark");
+    lightThemeSwitch.checked = getCurrentTheme() === "dark";
   };
 
-  lightThemeSwitch.checked = (getCurrentTheme() === "dark");
+  lightThemeSwitch.checked = getCurrentTheme() === "dark";
   lightThemeSwitch.addEventListener("click", handleToggleClick);
 </script>

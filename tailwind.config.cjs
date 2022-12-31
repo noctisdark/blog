@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 
-const defaultTheme = require('tailwindcss/defaultTheme')
+const defaultTheme = require("tailwindcss/defaultTheme");
 
 module.exports = {
   mode: "jit",
@@ -8,7 +8,7 @@ module.exports = {
   theme: {
     fontFamily: {
       ...defaultTheme.fontFamily,
-      'mono': ['"Fira Code"', ...defaultTheme.fontFamily.mono]
+      mono: ['"Fira Code"', ...defaultTheme.fontFamily.mono],
     },
     extend: {
       typography: {
@@ -21,10 +21,10 @@ module.exports = {
               "--tw-prose-pre-bg": "hsl(var(--b2))",
               border: "unset",
             },
-            
+
             code: {
               "--tw-prose-code-bg": "hsl(var(--b2))",
-              backgroundColor: "var(--tw-prose-code-bg)"
+              backgroundColor: "var(--tw-prose-code-bg)",
             },
 
             h2: {
@@ -35,7 +35,7 @@ module.exports = {
             img: {
               marginTop: "0.5em",
               marginBottom: "0.5em",
-            }
+            },
           },
         },
       },

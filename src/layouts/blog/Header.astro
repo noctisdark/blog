@@ -34,8 +34,11 @@ import Navigation from "@layouts/Navigation.astro";
 <script>
   const progressBar = document.getElementById("scroll-progress") as HTMLElement;
   const onScroll = () => {
-    const scroll = document.body.scrollTop || document.documentElement.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const scroll =
+      document.body.scrollTop || document.documentElement.scrollTop;
+    const height =
+      document.documentElement.scrollHeight -
+      document.documentElement.clientHeight;
     const percentage = height ? (scroll / height) * 100 : 100;
     progressBar.style.width = percentage + "%";
   };

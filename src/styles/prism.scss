@@ -18,13 +18,13 @@ pre[class*="language-"] ::selection {
 .token.comment,
 .token.prolog,
 .token.cdata {
-	color: hsl(230, 4%, 64%);
+  color: hsl(230, 4%, 64%);
 }
 
 .token.doctype,
 .token.punctuation,
 .token.entity {
-	color: hsl(230, 8%, 24%);
+  color: hsl(230, 8%, 24%);
 }
 
 .token.attr-name,
@@ -33,11 +33,11 @@ pre[class*="language-"] ::selection {
 .token.constant,
 .token.number,
 .token.atrule {
-	color: hsl(35, 99%, 36%);
+  color: hsl(35, 99%, 36%);
 }
 
 .token.keyword {
-	color: hsl(301, 63%, 40%);
+  color: hsl(301, 63%, 40%);
 }
 
 .token.property,
@@ -45,7 +45,7 @@ pre[class*="language-"] ::selection {
 .token.symbol,
 .token.deleted,
 .token.important {
-	color: hsl(5, 74%, 59%);
+  color: hsl(5, 74%, 59%);
 }
 
 .token.selector,
@@ -56,17 +56,17 @@ pre[class*="language-"] ::selection {
 .token.regex,
 .token.attr-value,
 .token.attr-value > .token.punctuation {
-	color: hsl(119, 34%, 47%);
+  color: hsl(119, 34%, 47%);
 }
 
 .token.variable,
 .token.operator,
 .token.function {
-	color: hsl(221, 87%, 60%);
+  color: hsl(221, 87%, 60%);
 }
 
 [data-theme="dark"] {
-	// from https://github.com/PrismJS/prism-themes/blob/master/themes/prism-laserwave.css
+  // from https://github.com/PrismJS/prism-themes/blob/master/themes/prism-laserwave.css
   code[class*="language-"]::-moz-selection,
   code[class*="language-"] ::-moz-selection,
   pre[class*="language-"]::-moz-selection,
@@ -138,23 +138,21 @@ pre[class*="language-"] ::selection {
   .token.variable {
     color: #ffffff;
   }
-
 }
-
 
 /* The following rules are pretty similar across themes, but feel free to adjust them */
 .token.bold {
-	font-weight: bold;
+  font-weight: bold;
 }
 
 .token.italic {
-	font-style: italic;
+  font-style: italic;
 }
 
 .token.entity {
-	cursor: help;
+  cursor: help;
 }
 
 .token.namespace {
-	opacity: 0.7;
+  opacity: 0.7;
 }

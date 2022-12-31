@@ -143,7 +143,7 @@ On ajoute
 
 ```bash
 alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Password file leak!"; content:"/etc/shadow";sid:1000001;)
-````
+```
 
 à `/var/lib/suricata/rules/suricata.rules`.
 

@@ -1,7 +1,5 @@
 export const getCurrentTheme = (): "light" | "dark" => {
-  if (
-    localStorage.getItem("theme")
-  )
+  if (localStorage.getItem("theme"))
     return localStorage.getItem("theme") as "light" | "dark";
 
   if (window.matchMedia("(prefers-color-scheme: light)").matches)
