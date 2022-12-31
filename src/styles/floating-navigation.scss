@@ -96,13 +96,22 @@
     }
 
     // when the show button is clicked
-    &:focus-within nav {
-      visibility: visible;
-      pointer-events: unset;
-      background-color: hsl(var(--b1));
+    &:focus-within {
+      nav {
+        visibility: visible;
+        pointer-events: unset;
+        background-color: hsl(var(--b1));
+      }
+
+      button {
+        // @apply btn-hover;
+        --tw-bg-opacity: 0.2;
+        --tw-border-opacity: 0;
+        background-color: hsl(var(--bc) / var(--tw-bg-opacity));
+      }
     }
   }
-  
+
   // big screens
   @media screen and (min-width: 1536px) {
     width: calc((100vw - 1024px) / 2);
