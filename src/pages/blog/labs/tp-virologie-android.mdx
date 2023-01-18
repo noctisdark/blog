@@ -1,0 +1,238 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "Android Malware Analysis"
+description: "Android Malware Analysis"
+author: "Majed Abdennadher, Fadel Sougou"
+timestamp: 1674080446742
+duration: 10
+tag: "Lab"
+slug: "tp-malware-android"
+---
+
+## 1. Preparing the Lab
+
+We've chosen to use the first configuration:
+
+> Android Studio and an emulator that needs a virtualization backend (needs more resources)
+
+We started with option 3 but we've had issues with the VirtualBox image, notably the smartphone emulator that keeps loading and gets timed out.
+Option 2 is terrible because installing malware on the phone doesn't sound like a great idea.
+
+The computer is running Windows 11 with WSL enabled. WSL uses a subset of Hyper-V.
+The quickest way to disable Hyper-V is to run this reversible (`auto` instead of `off`) command in powershell and reboot the computer:
+
+```powershell
+bcdedit /set hypervisorlaunchtype off
+```
+
+More details about `bcedit` command [here](https://learn.microsoft.com/en-us/windows-hardware/manufacture/desktop/bcdedit-command-line-options?view=windows-11).
+
+Now, since we deactivated Hyper-V and can no longer use WSL, we're going to use Powershell 💀. Also we'll use Ghidra instead of radare2.
+
+This is the only configuration/compromise we had to do.
+
+- [x] HAXM is running
+- [x] Intel-VT is enabled
+- [x] AndroidStudio is installed
+- [x] Java is installed. we'll keep using 19.0.1 until we have issues.
+
+Everything seems good, it's time to start working.
+
+## 2. Lab Exercices
+
+### 2.1 Labs from Teaching Android Mobile Security
+
+#### A. Programming an antidote for a ransomware
+
+We used the emulated smartphone's camera to take a selfie, this is what we got:
+
+![](https://i.imgur.com/dd16NZ2.png)
+
+Upon opening the the app, we get the following screen:
+
+![](https://i.imgur.com/e3pFZ1H.png)
+
+We find that the images we've taken are now encrypted:
+
+![](https://i.imgur.com/gzOmYO5.png)
+
+After decompiling with JadX, we find this important function in `MainService`:
+
+![](https://i.imgur.com/7nXYwPP.png)
+
+The antidote is simple, we have to copy the source of the application while changing `var.encrypt()` by `var.decrypt()`.
+
+![](https://i.imgur.com/j3baaSp.png)
+
+And of course it works !
+
+And it works:
+![](https://i.imgur.com/sffXr2J.png)
+
+#### B. Packers
+
+Upon giving PackLab the permission to access the contacts, they were deleted.
+In Jadx we can see that when permissions are given, `beEvilSetup` is called.
+The details of this method are:
+
+![](https://i.imgur.com/cqDyBlj.png)
+
+```java
+public native void decodeMethod(String paramString1, String paramString2);
+```
+
+`decodeMethod` is a native method that will load the code of the `beEvil` method which is the malicious method. Let's look at the content of `native-lib` to understand how it does it.
+
+The loaded asset `buterfly.png` is indeed not an image, it's probably just raw data.
+![](https://i.imgur.com/nPLpCpt.png)
+
+The content of this file is xored with the word register `w11` which is constant in the basic block. The answer to ~~life~~ our riddle lies in previous block: It's **0x42**.
+![](https://i.imgur.com/F0L9sMf.png)
+
+We ran the python script to obtain `unpacked_malware.dex`. Indeed it's a Dalvik dex file:
+![](https://i.imgur.com/Fw9qNIZ.png)
+
+We re-ran Jadx to decompile the new file, this is the content of the `beEvil` method:
+![](https://i.imgur.com/GSLDeJh.png)
+
+Unfortunately, there is no remedy to this malware.
+
+#### C. Hacking a spyware
+
+The used permissions are:
+
+```xml
+<uses-permission android:name="android.permission.GET_ACCOUNTS"/>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.VIBRATE"/>
+<uses-permission android:name="android.permission.WAKE_LOCK"/>
+```
+
+The only permissions that immediately jump out to me are `INTERNET`, `ACCESS_FINE_LOCATION` which should not be needed for a kitchen timer.
+
+`KitchenTimerService` is a service used to schedule tasks that fire `KitchenTimerService.ACTION ("Kitchen Timer Service")` intents. The receiver of this intent is registered in `onCreate` method of the `Main` class.
+
+When this intent is received, user data containing `device identifier`, `phone number` and `geographic address` of the user is sent out to an external server as GET query parameters.
+
+I've customized the [provided gist](https://gist.github.com/1kastner/e083f9e813c0464e6a2ec8910553e632) to create a python server listening on 8080.
+We think the Java 8 part was necessary because the `jar` throws an exception.
+we decided to do the address translation manually:
+
+1.  Run the emulator with a writable file system
+
+```
+emulator -avd Pixel_6_Pro_API_24 -partition-size 512 -writable-system
+```
+
+2. Acquire root privileges in the emulator with `adb root` and remount the `/system` partition in writable mode with `adb remount`. Finally run `adb shell`.
+3. Run `echo "10.0.2.2 14243444.com" >> /etc/hosts`. In essense, `10.0.2.2` should point to the host machine.
+4. The only remaining task is to redirect outgoing packets from `10.0.2.2:80` to `10.0.2.2:8080`
+
+```
+iptables -t nat -A OUTPUT -p tcp -d 10.0.2.2 --dport 80 -j DNAT --to-destination 10.0.2.2:8080
+```
+
+Actually nevermind the last step if you can run your python server on the port 80 directly.
+
+Let's finally see what this malware does:
+![](https://i.imgur.com/1PuQnOf.png)
+![](https://i.imgur.com/73gRmlN.png)
+
+The spyware crashes before it can figure out the geocoordinates. We imagine this is because our python server sends an empty reply, we changed that and now it successfully gets the geocoordinates.
+![](https://i.imgur.com/CBnPQX8.png)
+It sometimes randomly opens up Japanese google, we guess this is a form of diversion ? Not sure. but anyways, we confirmed our suspicions about this **user tracking** spyware.
+
+### 3. The challenge begins
+
+#### 1. The easy one
+
+This malware is a ransomware that encrypts files on the victim's smartphone.
+
+![](https://i.imgur.com/ygctDKd.png)
+
+When the malware is launched for the first time (detection via preferences), it launches the newone activity.
+This activity encrypts files starting with the SD Card, but we observed that the images we took are also encrypted. we guess this is because `listFiles()` returns the path `../`.
+
+The encryption function:
+![](https://i.imgur.com/fPHfbMd.png)
+
+The second time this application is launched, the `lock` activity is started. This shows the classic ransomware screen above.
+Reading more code, this malware encrypts files using DES (Data Encryption Standard). This is a symmetric encryption algorithm whose key is present in the code:
+
+![](https://i.imgur.com/9odXwt6.png)
+
+But it is easier to solve challenge that ransomware and decrypt the file system:
+
+![](https://i.imgur.com/yz0z9GG.png)
+
+You can get `this.val$xx` by clicking `Copy`:
+
+![](https://i.imgur.com/eKT9Xgf.png)
+
+Then we `sha_1 . md5` this value:
+
+![](https://i.imgur.com/5d6k8gn.png)
+
+And of course it works.
+
+#### 2. The easy one \#2
+
+Using some quality OCR to dechipher the program:
+
+![](https://i.imgur.com/yt9wtGp.png)
+
+It doesn't tell much except the existence of a password and/or a timer to exit the program.
+Oh, it seems we can't exit the program because the malware forces the focus back on the app. This is the case even if the phone is rebooted.
+
+Clicking the back button few times shows this prompt:
+
+![](https://i.imgur.com/ujJMDgq.png)
+
+Looking at JadX, the solution to the prompt challenge is easy to spot:
+
+![](https://i.imgur.com/E87ed6u.png)
+
+And of course it works.
+
+#### 3. The hard one
+
+Upon installing the app, Nothing happened.
+
+We thought that adb didn't install the app correctly so we went on to install it again: _Of course it doesn't work_. It also impossible to delete the app.
+It seems that our malware is installed.
+Using JadX, we get a hardly readable code, the few thing that we can notice right away are:
+
+- loading an external file
+- decrypting it algorithm is DES, looks like ECB mode
+- loading classes from the decrypted jar file and doing shady stuff with them
+
+Looking at the ressources, we find our first clues:
+![](https://i.imgur.com/N9hCCNA.png)
+![](https://i.imgur.com/ZAI5jJW.png)
+
+Indeed when visiting the accessibility settings we find:
+![](https://i.imgur.com/fh7IfgY.png)
+
+Looking at the devtools `Package summary` we found this:
+![](https://i.imgur.com/46IBuHb.png)
+
+The malware is installed as a privileged app, which explains why it can't be uninstalled. But how can it be installed on a read-only file system ?
+
+`ProxyService` also runs some services:
+![](https://i.imgur.com/rsFrV9x.png)
+
+Let's try to gain control of the external file.
+
+##### a. Getting the secret key
+
+![](https://i.imgur.com/WvVPLOt.png)
+Which gives the output: ![](https://i.imgur.com/iw4vD0v.png)
+
+##### b. decrypting the file using python
+
+![](https://i.imgur.com/0v8gwQT.png)
+And it actually works.
+
+We find the code behind the services run by `ProxyService`.
+This code is hard to read and we give up 😞.

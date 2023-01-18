@@ -1,7 +1,6 @@
 ---
 import DarkTheme from "@components/icons/DarkTheme.astro";
 import LightTheme from "@components/icons/LightTheme.astro";
-import Button from "@components/ui/Button.astro";
 ---
 
 <label class="swap swap-rotate btn btn-ghost">
@@ -11,7 +10,7 @@ import Button from "@components/ui/Button.astro";
 </label>
 
 <script>
-  import { toggleTheme, applyTheme, getCurrentTheme } from "@scripts/theme";
+  import { applyTheme, getCurrentTheme } from "@scripts/theme";
 
   const lightThemeSwitch = document.getElementById(
     "themeToggle"
