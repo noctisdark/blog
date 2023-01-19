@@ -1,0 +1,184 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "TP Data Mining et Machine Learning avec Orange"
+description: "TP Data Mining et Machine Learning avec Orange"
+author: "Majed Abdennadher"
+timestamp: 1674091068893
+duration: 10
+tag: "Lab"
+slug: "tp-orange-data"
+---
+
+#### Disclaimer
+
+Le temps ou j'ai fait le TP, le lien Teams vers le jeu des données `KDD CUP 1999` a déjà expiré. J'ai utilisé donc une autre source ([kaggle](https://www.kaggle.com/datasets/galaxyh/kdd-cup-1999-data?resource=download&select=kddcup.data_10_percent.gz)).
+
+## Question 1:
+
+Voici le schéma avec lequel on va travailler:
+![](https://i.imgur.com/Li5VlXd.png)
+
+#### Combien y a-t-il d’instances dans ce jeu de données ? Combien y a-t-il d’attributs ?
+
+Dans `Data Table`, on observe:
+![](https://i.imgur.com/oDfIqZt.png)
+
+#### À votre avis, que signifient le C vert et le N rouge à côté du nom des attributs
+
+Dans `Distributions`, on observe:
+![](https://i.imgur.com/VQk53WT.png)
+
+Le C vert et le N rouge correspondent au type de l’attribut:
+
+- <code style="color: green;">C</code> pour categorical
+- <code style="color: red;">N</code> pour numerical
+
+L’attribut label correspond à la catégorisation d’une attaque
+
+#### Que représente l’attribut "label" ?
+
+En regardant les valeurs possible de `label`, nottament `normal`, `dos`, `r2l`. On déduit qu'il s'agit de la catégorization de l'attaque
+
+## Question 2:
+
+Voici la distribution par `label`:
+
+#### Observez la distribution de l’attribut "label". Quelle classe est majoritaire ?
+
+![](https://i.imgur.com/hACdOS8.png)
+
+La classe majoritaire est `smurf`. En regardant la page [Wikipedia](https://en.wikipedia.org/wiki/Smurf_attack):
+Attaque de schtroumpf, un type d'attaque par déni de service (DoS) sur les réseaux informatiques.
+
+#### Regardez les types d’attaques et leur proportion. Pensez-vous que ce dataset soit représentatif de mesures qu’on pourrait réaliser sur un réseau en 2021 ? Pensez-vous qu’il soit représentatif des attaques actuelles ?
+
+Quelques autres attaques prononcés sont `neptune` (SYN Flood), `back` (TCP Reset ?). Enfin il y a aussi la catégorie `normal`.
+
+Le nombre d'attaques de déni de service semble trop élevé par rapport aux connexions normales. Ceci me semble excessif, mais c'est aussi pas surprenant vu le coût d'un DOS.
+
+## Question 3: . Pouvez-vous identifier des attributs dont certaines valeurs vous paraissent très liées à certaines attaques ?
+
+Après le split j'ai trouvé le diagramme difficile à lire dans j'ai regroupé les catégories avec l'outil `Edit Domain` pour reconstruire les catégories `normal`, `DOS`, `U2R`, `R2L` et `Probe`. J'ai utilisé ce [document](https://www.researchgate.net/figure/Attack-types-of-DoS-R2L-U2R-Probe-categories_tbl1_327110465) comme support de cette transformation.
+
+Je vais continuer le TP avec cette transformation appliquée.
+
+Par exemple:
+![](https://i.imgur.com/VqvuzUC.png)
+
+On observe qu'un nombre élevé de `serror_rate` produit une forte probabilité d'une attaque de type `DoS`.
+
+Un autre exemple:
+![](https://i.imgur.com/g9NULUh.png)
+
+On observe q'un taux de `rerror_rate` à partir d'un certain seuil corrèle fortement à une attaque de type `Probe`.
+
+## Question 4: Listez les cinq attributs les plus corrélés aux attaques d’après leur "Gini coefficient"
+
+![](https://i.imgur.com/j0P5OWx.png)
+
+Ceci nous permet d'identifier les cinq attributs les plus corrélés aux attaques.
+
+### Question 5: Quelle attaque précisément semble détectable avec cet attribut ?
+
+Prenons l'exemple de `dst_bytes`:
+
+![](https://i.imgur.com/JyxzgZ6.png)
+
+On observe qu'un taux très faible de cet attribut corrèle avec une attaque de type `DOS`, mais taux gigantesque correspond plutôt à une attaque de type `R2L`.
+
+De même pour l'attribut `count`:
+![](https://i.imgur.com/68GDBHa.png)
+
+A partir d'une certain seuil c'est probablement une attaque.
+
+## Question 6:
+
+Vu que mon jeu de données est different, je ne peux pas créer un arbre binaire pour l'erreur suivante:
+
+![](https://i.imgur.com/p537RDl.png)
+
+Continuons avec un arbre normal.
+
+#### Une capture pour la visualisation de l’arbre
+
+L'arbre est gigantesque, voici une [image](https://i.imgur.com/VYaKWFs.png) que vous pouvez aggrandir pour voir les détails.
+
+![](https://i.imgur.com/VYaKWFs.png)
+
+#### une capture autre pour la visualisation des règles de décisions.
+
+![](https://i.imgur.com/LZuzVId.png)
+
+## Question 7:
+
+#### Pourriez-vous, à partir de l’arbre de décision appris, donner un exemple d’instance qui serait prédit comme une attaque "Probe"
+
+![](https://i.imgur.com/38fulWJ.png)
+
+- Si count >= 65 et service = nntp ou vmnet, l'arbre prédit `Probe`
+
+#### Même question avec les règles apprises
+
+Voici quelques règles apprises qui prédisent avec une très force probabilité une attaque de type `Probe`:
+
+![](https://i.imgur.com/0jglEVw.png)
+
+## Question 8:
+
+#### Pour chaque modèle, Quel est l’accuracy de ce modèle ?
+
+La valeur de l'accuracy est présente sous le champs CA.
+![](https://i.imgur.com/JVquenF.png)
+
+#### Pour chaque modèle, Combien y a-t-il de faux positifs ? (instances normales considérées comme attaques) De faux négatifs ? (attaques considérées comme normales)
+
+Pour cette question, on fixe le `target` à `normal`.
+![](https://i.imgur.com/H60Kwu4.png)
+
+Un faux positive `fp'` dans cette image représente le cas ou le traffic est malicieux mais détecté normal. Donc `fp' = fn`
+
+Un faux négatif `fn'` dans cette image représente le cas ou le traffic est normal, mais détecté malicieux. Donc `fn' = fp`
+
+On aura aussi besoins du nombre de samples totales `N = 494021` et normales `Nnorm = 97278`.
+
+##### faux positifs
+
+La formule du `recall` s'écrit `r' = tp' / (tp' + fn')`.
+On rapelle que `tp' + fn'` correspond au nombre total des packets normales. Donc `Nnorm = tp' + fn'`.
+
+On peut en déduire le nombre de faux positives par `fp = fn' = (1 - r')*Nnorm`
+
+| Modèle                      | kNN | Tree | Random Forest | CN2 Rule Inducer |
+| --------------------------- | --- | ---- | ------------- | ---------------- |
+| **Nombre de faux positifs** | 97  | 973  | < 97          | 97               |
+
+##### faux négatives
+
+La formule du accuracy s'écrit `a' = (tp' + tn') / N`
+ainsi `fp' + fn' = N * (1 - a')`.
+
+Comme on a calculé `fn'` dans l'étape précedente, on peut maintenant en déduire le nombre de faux négatives `fn = fp' = N*(1 - a') - fn'`.
+
+| Modèle                      | kNN | Tree | Random Forest | CN2 Rule Inducer |
+| --------------------------- | --- | ---- | ------------- | ---------------- |
+| **Nombre de faux négatifs** | 397 | 2979 | < 494         | < 382            |
+
+<span style="color: red">
+
+C'est surprenant d'avoir des 0 ou des nombres négatifs mais il peut y avoir des réels < <code>10<sup>-3</sup></code> qui ne sont pas affichés sous le champs Accuracy et Recall. J'ai remplacé ces instances pour des < borne supérieure.
+
+</span>
+
+#### En supposant dix connexions légitimes par seconde, combien y aurait-t-il de faux positifs par jour en moyenne ? Trouvez-vous ce résultat satisfaisant pour une utilisation réelle ?
+
+Pour chaque algorithme on calcule le `False Positive Rate FPR = FP / P`.
+
+Le nombre de faux positifs par jours est ainsi `FPR * 10 * 60*60*24`
+
+On obtient les valeurs suivantes:
+
+| Modèle                               | kNN | Tree | Random Forest | CN2 Rule Inducer |
+| ------------------------------------ | --- | ---- | ------------- | ---------------- |
+| **Nombre de faux positifs par jour** | 861 | 8641 | < 84          | 861              |
+
+Sauf pour `Random Forest`, les nombre de fausses alertes reste un peu élevé mais pas excessivement.
