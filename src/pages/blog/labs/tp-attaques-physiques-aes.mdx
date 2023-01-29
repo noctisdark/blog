@@ -1,0 +1,405 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "Introduction aux attaques physiques de systèmes electroniques - Travaux pratiques"
+description: "Introduction aux attaques physiques de systèmes electroniques - Travaux pratiques"
+author: "Majed Abdennadher"
+timestamp: 1674091068893
+duration: 15
+tag: "Lab"
+slug: "tp-attaques-physiques-aes"
+---
+
+## CPA sur AES
+
+### 1. Commencez votre compte rendu par rappeler ce qu’est la cible de votre attaque, précisément.
+
+Le but de cette attaque est de reconstruire la _clé du chiffrement_ AES par des attaques physiques, nottameent du CPA.
+
+### 4. Ouvrez le fichier aes.list et comparer le au code source de l’AES dans resisting-physical-attacks/exercices/AES/aes encrypt/src/aes.c. Que contient `aes.list` ?
+
+`aes.list` est un fichier texte contenant la décompilation du fichier binare `aes.elf`. Ce dernier est issu de la compilation de `aes.c`.
+
+### 5. Vérifier que votre application fonctionne sur le microcontrôleur.
+
+Le resultat de l'éxecution de `python3 ../test/J-test-aes.py`:
+![](https://i.imgur.com/lbRqVzL.png)
+
+On observe que la dernière colonne est nulle, ainsi le `ciphertext` généré par notre application est ce qui est attendu. La probabilité que ça soit par chance est énormement faible. Donc oui, application fonctionne bien sur le microcontrôleur.
+
+### 6. Trouvez le nom du symbole dont vous voulez mesurer la consommation de courant
+
+On souhaite mesurer la consommation de la fonction `SubBytes`.
+Plus précisement, dans le premier round parce que cette fonction manipulera `state ⊕ key`.
+
+### 8. Expliquez ce que vous avez mesuré précisément et pourquoi ?
+
+On a mesuré la consommation de courant de la fonction `SubBytes`. On peut ceci pour générer des traces qu'on exploitera pour faire des hypothèses à propos de la clé et les valider.
+
+### 10. Fixez-vous un octet de la clé du premier tour (par exemple l’octet 4), combien y a t-il de valeurs possibles pour cet octet de clé ?
+
+Choissons le premier octet. Il y a 256 valeurs possible pour cet octet: tout les entiers entre 0 et 255.
+
+### 11. En choisissant le poids de Hamming comme modèle, rappelez quel est le chemin d’attaque théorique.
+
+L'objectif est d'exploiter les traces pour faire des hypothèses à propos de la clé et les valider.
+
+Dans ce modèle, on supposera que la consommation du courant augmente avec le nombre de bits à valeur `1`.
+
+1. Comme on fait une attaque à clair connu, on fait une hypothèse sur un octet `k` de la clé. Puis on crée une matrices de prédictions <code>P<sub>Hw,k</sub> = HW(SB(s<sub>0</sub> ⊕ k<sub>0</sub>))</code>. où `HW` est le Poids de Hammin`.
+2. On confronte nos prédictions <code>P<sub>Hw,k</sub></code> avec la matrice des traces `M` contenant les mesures.
+3. Ceci permet de valider ou rejeter les hypothèses qu'on a fait.
+
+```python
+HW = lambda b: (b & 1) + HW(b >> 1) if b else 0
+P = lambda c, b: HW(Sbox[c ^ b])
+target_byte = 0
+```
+
+### 13. Quelles sont les dimensions de cette matrice P ? Pourquoi ?
+
+<code>
+  P<sub>Hw,k</sub> = HW(SB(k<sub>0</sub> ⊕ s<sub>0</sub>))
+</code>
+. La matrice P est ainsi de taille `256 x N` où N est le nombre de traces.
+
+```python
+target_plain_bytes = plaintexts[:, target_byte]
+
+predictions = np.array([
+  [P(byte, k) for byte in target_plain_bytes] for k in range(256)
+])
+
+print(prediction.shape) # (256, 3000)
+```
+
+### 14. Les différentes matrices sont-elles de dimensions différentes ?
+
+Oui, la matrice de traces `M` est de taille `N x T` où T est le nombre de points de temps où chaque mesure est faite.
+
+```python
+T = traces.shape[1]
+print(traces.shape) # (3000, 510)
+```
+
+### 15. Rappelez ce qu’est un distingueur
+
+Un distingueur est un outil statistique permettant de confronter les prédictions <code>P<sub>Hw,k</sub></code> aux mesures `M`.
+
+### 16. Pour l’octet que vous attaquez, confrontez les mesures avec sa matrice de prédiction à l’aide du distingueur choisi, pourquoi ce distingueur ?
+
+On choisit la `Corrélation de Pearson` comme distingeur. La corrélation entre deux variable aléatoire `X` et `Y` révèle un lien linéaire si sa valeur est proche de `+/- 1`.
+
+La corrélation sera appliqué chaque ligne <code>P<sub>Hw,k</sub></code> et chaque colonne de `M`.
+
+Dans le cas contraire, si on a fait une mauvaise hypothèse, alors la consommation du courant sera quasi-independante <code>P<sub>Hw,k</sub></code> ce qui implique une très faible.
+
+Au contraire, si on fait une bonne hypothèse alors il existe un lien linéaire qui sera traduit par une corrélation proche de `+/- 1`.
+
+```python
+corr = lambda X, Y: np.corrcoef(X, Y)[0, 1]
+correlations = np.array([
+  [corr(predictions[k, :], traces[:, t]) for t in range(T)] for k in range(256)
+])
+
+print(correlations) # (256, 510)
+
+import matplotlib.pyplot as plt
+for key in range(256):
+    plt.plot(correlations[key])
+plt.show()
+```
+
+Ceci produit la figure suivante. L'abscisse correspond au temps et l'ordonnée correspond à la corrélation.
+
+![](https://i.imgur.com/iotreWV.png)
+
+### 18. Quelle semble être la valeur de l’octet de clé attaqué ?
+
+L'octet choisit correspond au maximum de corrélation en valeur absolue.
+
+```python
+abs_correlations = np.abs(correlations)
+max_points = np.where(abs_correlations == abs_correlations.max())
+print(max_points, correlations[max_points]) #(array([0x2b]), array([0x4])) [0.36105796]
+```
+
+### 19. Est-ce la bonne valeur ?
+
+Les traces sont générés par `/L5-CPA/M-CPA.py`. En regardant ce fichier on trouve la ligne suivantes:
+
+```python
+key = parse_input_bytes("2b7e151628aed2a6abf7158809cf4f3c")
+```
+
+Ce qui correspond à la valeur qu'on a trouvé.
+
+Je crois que le programmer execute tout les `SubBytes`. Dans ce cas, seulement les mesures de la première execution de cette fonction va corréler avec nos prédiction ce qui explique pourquoi on a une forte corrélation seulement en début.
+
+### 20. Si non, la bonne valeur est classée à quel rang ?
+
+No, All good.
+
+### Retrouvez-vous tous les octets ? Sinon, proposez un moyen efficace de les retrouver.
+
+Le programme mets du temps à éxecuter mais aboutit finalement a des résultats:
+
+![](https://i.imgur.com/PK9HQeK.png)
+
+La deuxième composante correspondant au temps où le maximum est atteint.
+
+### Identifiez à quel instant sont manipulés les différents octets de la clé ?
+
+J'avoue que je ne comprends pas ce que vous voulez dire par `manipuler` dans cette question et les suivantes. Je tente quand même.
+
+En analysant les résultat de la question précedentes, on retrouve que les octets sont manipulés sont manipulés dans l'ordre suivant: 1, 5, 9, 13, 2 => par colonne.
+
+En effet, ceci vient de l'implémentation de la fonction `MessageToState`:
+
+```c
+void MessageToState(uint8_t state [][STATE_ROW_SIZE], uint8_t message [])
+{
+	int i,j;
+	for(i=0;i < STATE_ROW_SIZE;i++)
+	{
+		for(j=0;j < STATE_ROW_SIZE;j++)
+		{
+			state[i][j]=message[j*STATE_ROW_SIZE+i];
+		}
+	}
+	return;
+}
+```
+
+### Pouvez-vous relier ces instants à des instructions dans le fichier aes.list ?
+
+Analysons
+
+```armasm
+08000274 < MessageToState >:
+ ...
+ 800027c:	2300      	movs	r3, #0
+ 800027e:	f811 4023 	ldrb.w	r4, [r1, r3, lsl #2]
+ 8000282:	f802 4f01 	strb.w	r4, [r2, #1]
+ 8000286:	3301      	adds	r3, #1
+ 8000288:	2b04      	cmp	r3, #4
+ 800028a:	d1f8      	bne.n	800027e < MessageToState+0xa >
+ ...
+```
+
+correspond à `*(r2++) = *(r1 + 4*r3)` puis `r3 += 1` et puis on saute si `r3 = 4`.
+
+Donc la compilation conserve l'ordre (column-major) qu'on a spécifié dans le programme C (par défault C utilise row-major pour les array 2D).
+
+On retrouve le même motif dans la fonction `AddRoundKey`.
+
+### Observez-vous des différences entre les octets ?
+
+Non ?
+Need help je n'ai pas compris l'objectif des dernières questions.
+
+### De combien de courbes avez-vous besoin au minimum pour que l’attaque continue de fonctionner ?
+
+J'ai fait une recherche dichotomique jusqu'à ce que l'algorithme ne marche plus.
+J'ai utilisé une petite optimization parcequ'on sait que le xor avec un octet de la clé se passe au début de la simulation donc j'ai limité les points entre `0 <= t <= 100` (Ceci à un effet de reduire le nombre de traces).
+
+J'ai éxecuté ces test plusieurs fois pour vérifier si clé est retrouvée correctement sur differents simulations.
+
+Une valeur de `300` courbes suffit.
+
+### 27. Rédigez une conclusion du TP.
+
+La CPA est une méthode d'attaque pour déterminer la clé de chiffrement d'un algorithme de chiffrement tels que AES. Elle implique la collecte de traces de consommation d'énergie pendant l'opération de chiffrement et l'analyse de ces traces pour déterminer la corrélation entre la consommation d'énergie et les valeurs des bits de la clé. Le nombre de traces nécessaires pour une attaque réussie dépend de plusieurs facteurs, tels que la taille de la clé de chiffrement, la précision de la mesure de puissance et la présence de contre-mesures visant à atténuer l'attaque. En général, plusieurs milliers à plusieurs millions de traces sont collectées pour l'analyse.
+
+## TP AES DFA
+
+### 1. Script de calibration
+
+Je me suis basé sur [ce papier<sup>1</sup>](https://www.unilim.fr/laco/rapports/2003/R2003_01.pdf) pour réaliser l'attaquer.
+
+Le but est d'introduire une faute avant la dernière éxecution de `SubBytes` donc considérons la fonction `MixColumns`.
+
+En analysant `aes.elf`, on voit le la boucle intérieur est déroulée. Ainsi pour chaque invocation de `MixColumns`, certains lignes qui manipulent le state sont éxecuté 4 fois. Ainsi si on veut attaquer la dernière executer des MixColumns, en particuler de sorte à sauter les instructions de load de valeurs de state on doit attaquer l'iteration `8*4 + col` où `col` est la colonne à attaquer.
+
+Par exemple pour attaquer le load le premier octet de la state, on éxecute:
+
+`python3 ../L6-DFA/K-fault-calibration.py . 33 MixColumns`
+
+Ceci certaines fautes intéressantes:
+
+```plaintext
+Faulting address 0x80003ee : ! Fault detected ! Diff: 6b0000000000009c0000fa00002e0000  Output: 5225841d02dc0967dc117f9719440b32
+Faulting address 0x80003f4 : ! Fault detected ! Diff: 7b0000000000000d00009e0000a50000  Output: 4225841d02dc09f6dc111b9719cf0b32
+Faulting address 0x80003fa : ! Fault detected ! Diff: f10000000000000a0000d20000890000  Output: c825841d02dc09f1dc11579719e30b32
+Faulting address 0x8000400 : ! Fault detected ! Diff: b50000000000003600007e0000f70000  Output: 8c25841d02dc09cddc11fb97199d0b32
+```
+
+Ce qui est exactement prédit par le papier mentionné.
+
+L'exécution de `python3 ../L6-DFA/K-fault-calibration.py . 34 MixColumns` solidifie cette hypothèse donc continuons.
+
+### 2. Quelle adresse d’injection choisissez-vous ?
+
+On choisit l'addresse `0x80003ee`. Une faute à cette addresse introduira une modification du premier octets du state à l'entrée de MixColumns.
+Ceci aura l'effet suivant (ref [1]):
+
+![](https://i.imgur.com/5HL6ETT.png)
+
+#### Point important que j'avais pas initalement réalisé
+
+Pour monter une attaque `NUEVA` ou `PQ`, il faut qu'on sache estimer la valeur d'erreur. Dans ce cas, l'addesse proposée n'est pas adéquate parce que l'erreur sera masquée par le clé du round 9.
+
+Attaquons `AddRoundKey` à l'iteration `16*8 + col`.
+Comme attendu on a la sortie suivante:
+
+![](https://i.imgur.com/OCta6TK.png)
+
+Choisissons l'addresse `0x80002d6` correspond à `eors	r2, r5`. La sortie a encore la même tête.
+
+### 3. Quelles attaques théoriques compatibles avec ce modèle de faute connaissez vous ?
+
+Une attaque théorique compatible avec ce modèle est NUEVA (Non Uniform Error Value Analysis) ou PQ (Piret-Quisquater).
+
+J'ai choisis d'utiliser NUEVA. parce qu'on peut travailler octet par octet, ce qui sera plus rapide que travailler en 32bit.
+
+### 6. Chargez les fichiers obtenus précédemment et comparez-les. Repérez quels octets ont été fautés. Sont-ils compatibles avec le modèle de faute théorique de l’attaque ?
+
+Pour charger les résultats:
+
+```python
+import numpy as np
+
+ciphertexts = np.load('ciphertexts.npy')
+faulty_ciphertexts = np.load('faulty_ciphertexts.npy')
+```
+
+Après on peut vérifier si les résultats son compatible avec le modèle de faute:
+
+```python
+xored = ciphertexts ^ faulty_ciphertexts
+successful_injections = np.nonzero(xored.T)
+
+injection_bytes = np.unique(successful_injections[0])
+injection_samples = np.unique(successful_injections[1])
+
+# non zero columns
+print(injection_bytes) # [0, 0x7, 0xa, 0xd]
+
+# non zero rows
+print(injection_samples) # [3, 4, ..]
+```
+
+Ceci montre que la faute ce produit aux indices comme prédis par la section précente, et il y a une chance quelle ne se produit pas.
+Exemple: on voit que aucune faute ne s'est produite (ou sans effet) pendant dans les premiers 3 traces.
+
+### 7. Classez vos résultats par octet de clé attaqué.
+
+Pour commencer, les octets impactés de la clé dans notre cas sont 0, 7, 10 et 13.
+Sinon ils sont calculés en fonction des fichiers et enregistrés dans la array `injection_bytes`.
+
+### 8. Pour chacun des octets de clé impactés, pour chacune des hypothèses de clé, construire la distribution de l’erreur.
+
+Pour chacun de ces octets, calculons <code>D(n, K<sub>i</sub>) = Sbox<sup>-1</sup>(C<sub>n,i</sub> ⊕ K<sub>i</sub>) ⊕ Sbox<sup>-1</sup>(C\*<sub>n,i</sub> ⊕ K<sub>i</sub>)</code>.
+
+Si on devine l'octet <code>K<sub>i</sub></code> correctement, alors <code>D(n, K<sub>i</sub>)</code> est biasée si la faute réussit sinon vaut `0`.
+Si on devine <code>K<sub>i</sub></code> incorrectement, alors <code>D(n, K<sub>i</sub>)</code> est aléatoire si l'injection réussit sinon vaut `0`.
+
+```python
+err = lambda i, k, target_byte: InvSbox[k ^ ciphertexts[i, target_byte]] ^ InvSbox[k ^ faulty_ciphertexts[i, target_byte]]
+
+table = np.array([
+  [err(i, k, injection_bytes[0]) for k in range(256)] for i in range(N)
+])
+```
+
+On peut obtenir la distribution (empirique) des erreur en utilisant `np.unique`:
+
+```python
+values, counts = np.unique(entries, return_counts=True)
+```
+
+### 9. Calculez l’entropie de ces distributions.
+
+En utilisant `counts` de l'étape précedente, on définite:
+
+```python
+import scipy.stats
+
+def entropy(entries):
+  values, counts = np.unique(entries, return_counts=True)
+  return scipy.stats.entropy(counts / N)
+```
+
+### 10. Concluez quelle est la bonne hypothèse de clé
+
+Pour le premier octet de la clé:
+
+```python
+entropies = [entropy(table[:, k]) for k in range(256)]
+plt.plot(entropies)
+plt.show()
+```
+
+Ceci dessine la figure suivante:
+
+![](https://i.imgur.com/V0gNOVw.png)
+
+On observe une valeur distinguée correspondante à `0xd0`.
+Sachant qu'une faible entropie indique un biais, ceci qui validera notre hypothèse.
+En regardant le code source de `/L6-DFA/L-DFA.py`, on vérifie bien que c'est premier octet de <code>K<sub>10</sub></code>.
+
+#### Modifiez les paramètres de la question 2 afin de fauter d’autres octets et retrouver la clé du dernier tour entièrement
+
+Il suffit de modifier une colonne pour récupérer 4 octets du clé.
+
+On invoquera le programme avec des fichiers differents à chaque fois et gardons le progrès dans `recovered_key_10`:
+
+```python
+recovered_key10 = {};
+
+def get_key_10_bytes():
+  for target_byte in injection_bytes:
+    table = np.array([
+      [err(i, k, target_byte) for k in range(256)] for i in range(N)
+    ])
+
+    entropies = np.array([entropy(table[:, k]) for k in range(256)])
+    recovered_key10[target_byte] = np.argmin(entropies)
+
+	print(recovered_key10)
+
+```
+
+![](https://i.imgur.com/Pkahm4I.png)
+
+Maintenant, pour la 2, 3 et 4-ième colonne:
+
+On execute `python3 ../L6-DFA/K-fault-calibration.py . "128+n" AddRoundKey` et se assure que c'est conforme et qu'on peut toujours faire la faute au même addresse.
+
+`python3 ../L6-DFA/L-DFA.py . 0x80002d6 1000 "128+n" && mv *.npy ..` pour générer les traces.
+
+et finalement `python3 hack_dfa.py` pour générer la clé progressivement.
+
+à la fin:
+
+```python
+recovered_key10 = {0: 208, 7: 137, 10: 12, 13: 99, 1: 20, 4: 201, 11: 200, 14: 12, 2: 249, 5: 238, 8: 225, 15: 166, 3: 168, 6: 37, 9: 63, 12: 182}
+
+key_10 = np.array([recovered_key10[i] for i in range(16)])
+key = k10tok0(key_10)
+print(np.array([key[i] for i in range(16)])) # [0x2b 0x7e 0x15 0x16 0x28 0xae 0xd2 0xa6 0xab 0xf7 0x15 0x88 0x9 0xcf 0x4f 0x3c]
+```
+
+### 12. Comparez votre résultat avec la vraie clé
+
+En regardant le code source de `/L6-DFA/L-DFA.py`, on trouve la clé `"2b7e151628aed2a6abf7158809cf4f3c"`.
+
+### 13. Conclusion
+
+La méthode NUEVA (Non-Uniform Error Vector Analysis) est un type spécifique d'attaque par injection de fautes qui cible le chiffrement AES (Advanced Encryption Standard). La méthode NUEVA utilise les erreurs introduites dans le processus de cryptage pour déduire des informations partielles sur la clé secrète. La méthode utilise des techniques statistiques comme l'entropie de Shannon pour analyser les vecteurs d'erreur produits par l'injection de fautes et en extraire des informations sur la clé. NUEVA estime l'erreur introduite par l'injection de fautes et chaque estimation dépend d'une hypothèse de clé. Si l'hypothèse clé est incorrecte, les erreurs estimées sont aléatoires et leur distribution Shannon résultante est nulle, mais si l'hypothèse clé est correcte, les erreurs sont biaisées vers la valeur de la faute, ce qui réduit leur entropie Shannon. Cela permet d'identifier les octets clés. La méthode NUEVA est considérée comme une méthode peu coûteuse et efficace d'attaque d'AES, ce qui en fait une préoccupation pour la sécurité des systèmes basés sur AES.
+
+## Réfs:
+
+[1] Differential Fault Analysis on A.E.S. https://www.unilim.fr/laco/rapports/2003/R2003_01.pdf
+
+[2] A DFA on AES based on the entropy of error distributions
+https://ronan.lashermes.0nline.fr/papers/FDTC2012.pdf
