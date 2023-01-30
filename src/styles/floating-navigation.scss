@@ -91,16 +91,17 @@
     max-width: 100%;
 
     nav {
-      visibility: hidden;
-      pointer-events: none;
+      display: none;
+      max-height: 45vh;
+      overflow-y: scroll;
+      background-color: hsl(var(--b1));
+      box-shadow: 0 3px 5px hsl(var(--b3));
     }
 
     // when the show button is clicked
     &:focus-within {
       nav {
-        visibility: visible;
-        pointer-events: unset;
-        background-color: hsl(var(--b1));
+        display: block;
       }
 
       button {
