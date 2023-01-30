@@ -22,6 +22,11 @@ module.exports = {
               border: "unset",
             },
 
+            a: {
+              // these are basically long words, not breaking them can hurt layout on small phones
+              "word-break": "break-all",
+            },
+
             code: {
               "--tw-prose-code-bg": "hsl(var(--b2))",
               backgroundColor: "var(--tw-prose-code-bg)",
