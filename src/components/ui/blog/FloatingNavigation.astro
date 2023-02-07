@@ -10,9 +10,14 @@ import Button from "../Button.astro";
   aria-label="Article Navigation"
   class="floating-navigation not-prose text-xs select-none"
 >
-  <Button class="btn-ghost active" tabindex="0">
+  <Button
+    class="btn-ghost active"
+    aria-label="Open article navigation"
+    tabindex="0"
+  >
     <List class="h-6 w-6" />
   </Button>
+
   <nav class="max-w-full max-w-screen-lg" tabindex="0"></nav>
 </section>
 

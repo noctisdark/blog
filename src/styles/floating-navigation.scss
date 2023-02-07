@@ -69,7 +69,6 @@
   }
 
   .visibility-indicator {
-    content: "";
     display: block;
     background-color: currentColor;
     position: absolute;
@@ -80,6 +79,7 @@
       var(--nav-padding) +
         (var(--selection-track-width) - var(--selection-thumb-width)) / 2
     );
+    transition: all ease-out 100ms;
   }
 
   // small screens
@@ -100,10 +100,6 @@
 
     // when the show button is clicked
     &:focus-within {
-      nav {
-        display: block;
-      }
-
       button {
         // @apply btn-hover;
         --tw-bg-opacity: 0.2;

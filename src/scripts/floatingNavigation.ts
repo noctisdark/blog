@@ -171,6 +171,7 @@ const createVisiblityIndicator = () => {
 export const createNavigationSection = (headings: HTMLHeadingElement[]) => {
   const navigationSection = document.getElementById("floatingnav-root");
   const nav = navigationSection.querySelector("nav");
+  const button = navigationSection.querySelector("button");
   const headingsTree = createHeadingsTree(headings);
   const { listDOM, itemsDOM } = buildlistDOM(headingsTree);
   nav.appendChild(listDOM);
@@ -205,6 +206,7 @@ export const createNavigationSection = (headings: HTMLHeadingElement[]) => {
   return {
     navigationSection,
     nav,
+    button,
     itemsDOM,
     itemsHash,
     collapseAllTrees,
@@ -287,6 +289,8 @@ export const createFloatingNavigation = () => {
   const article = getArticle();
   const headings = getArticleHeadings();
   const {
+    button,
+    nav,
     navigationSection,
     itemsHash,
     collapseAllTrees,
@@ -294,7 +298,7 @@ export const createFloatingNavigation = () => {
     setIndicatorRange,
   } = createNavigationSection(headings);
 
-  const mutationObserver = new ResizeObserver(() => {
+  const resizeObserver = new ResizeObserver(() => {
     computeNavigation(article, headings, itemsHash, {
       collapseAllTrees,
       setTreeVisible,
@@ -302,6 +306,20 @@ export const createFloatingNavigation = () => {
     });
   });
 
-  mutationObserver.observe(article);
+  button.addEventListener("click", () => {
+    const currentDisplay = nav.style.getPropertyValue("display"),
+      nextDisplay = currentDisplay === "block" ? "none" : "block";
+
+    nav.style.display = nextDisplay;
+    if (nextDisplay === "block") {
+      computeNavigation(article, headings, itemsHash, {
+        collapseAllTrees,
+        setTreeVisible,
+        setIndicatorRange,
+      });
+    }
+  });
+
+  resizeObserver.observe(article);
   article.appendChild(navigationSection);
 };
