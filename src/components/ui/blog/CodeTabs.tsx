@@ -1,5 +1,7 @@
 import "@styles/codetabs.scss";
 
+// WHEN NOTHING TODO: maybe ditch preact and use web components
+// OR GiveUP && use preact OR just don't use this
 const CodeTabs = ({ activeTab, children, ...slots }) => {
   const slotEntries = Object.entries(slots);
 

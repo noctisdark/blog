@@ -7,6 +7,8 @@ import Layout from "@layouts/Layout.astro";
 import Metadata from "@components/ui/blog/Metadata.astro";
 import FloatingNavigation from "@components/ui/blog/FloatingNavigation.astro";
 
+import pluralize from "pluralize";
+
 const {
   title,
   slug,
@@ -17,6 +19,8 @@ const {
   image,
   author,
 } = Astro.props.frontmatter ? Astro.props.frontmatter : Astro.props;
+
+const tagDirectory = pluralize(tag).toLowerCase();
 ---
 
 <Layout title={title} description={description}>
@@ -24,7 +28,7 @@ const {
     <ul slot="breadcrumbs-items">
       <li><a href="/">/</a></li>
       <li>{tag}</li>
-      <li><a href={`/blog/${slug}`}>{title}</a></li>
+      <li><a href={`/blog/${tagDirectory}/${slug}`}>{title}</a></li>
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
@@ -52,7 +56,7 @@ const {
   }
 </style>
 
-<script>
+<!-- <script>
   import setupCodeTabs from "@scripts/codetabs";
   setupCodeTabs();
-</script>
+</script> -->
