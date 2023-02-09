@@ -1,0 +1,320 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "Cryptographie - Travaux pratiques Passerelle IPSec"
+description: "Cryptographie - Travaux pratiques Passerelle IPSec"
+author: "Majed Abdennadher"
+timestamp: 1675947170403
+duration: 10
+tag: "Lab"
+slug: "tp-passerelle-ipsec"
+---
+
+## Configuration de VirtualBox
+
+Ping depuis les machines au `Routeur`.
+
+![](https://i.imgur.com/wK6X85b.png)
+
+![](https://i.imgur.com/E6WLn0p.png)
+
+![](https://i.imgur.com/tYstmC4.png)
+
+On obtient ainsi la vidéo d’un coffre fort.
+
+![](https://i.imgur.com/RuS3JSM.png)
+
+Finalement sur la machine `IPSec` il faut ajouter une default gateway vers l'addresse locale de la machine `Routeur`.
+
+Dans `/etc/network/interfaces`:
+
+![](https://i.imgur.com/eGEyyUD.png)
+
+## Mise en place d’un proxy IPSec
+
+#### Création de l'IPsec CA
+
+On commence par créer un répertoire pour les fichiers qui seront utilisés pour l'installation de la CA et du tunnel.
+
+```bash
+sudo su -
+mkdir -p pki/{cacerts,certs,private}
+chmod 700 pki
+```
+
+Puis on crée la clé privée de la CA
+
+```bash
+pki --gen --type rsa --size 4096 --outform pem > pki/private/ca-key.pem
+```
+
+Ce clé servira à la génération d'un certificat auto-signé de la CA
+
+```bash
+pki --self --ca \
+	--in pki/private/ca-key.pem \
+	--lifetime 3650 \
+	--dn "CN=IPSec CA" --outform pem > pki/cacerts/ca-cert.pem
+```
+
+Ce certificat sera copié sur les machines qui auront confiance à l'authorité `IPSec CA`. Quand la CA genère un certificat pour notre serveur `IPSec`, l'authenticité de ce dernier pourra être vérifiée.
+
+#### Création du certificat du serveur IPSec
+
+Comme toute à l'heure, on commence par la création de la clé du serveur.
+
+```bash
+pki --gen --type rsa --size 4096 --outform pem > pki/private/server-key.pem
+```
+
+Maintenant il faut créer un certificat pour ce serveur et le signé par la clé privée de notre CA.
+
+```bash
+pki --pub \
+	--in pki/private/server-key.pem \
+	--outform pem > pki/certs/server-cert-unsigned.pem
+
+pki --issue \
+	--in pki/certs/server-cert-unsigned.pem \
+	--lifetime 365 \
+	--cacert pki/cacerts/ca-cert.pem --cakey pki/private/ca-key.pem \
+	--dn "CN=172.16.11.11" --san 172.16.11.11 \
+	--flag serverAuth --outform pem \
+	> pki/certs/server-cert.pem
+
+rm pki/certs/server-cert-unsigned.pem
+```
+
+le flag `serverAuth` spécifie à `pki` que ce certificat sera utiliser pour l'authentification d'un serveur.
+
+Finalement on copie les certificats à `/etc/ipsec.d`:
+
+```bash
+cp -r pki/* /etc/ipsec.d/
+```
+
+#### Configuration de `StrongSwan`
+
+##### Configuration du serveur
+
+Déplacons nous dans `/etc/ipsec.conf`.
+On voit qu'il y a deux connection `psk-vpn` et `vpn-rsa`. On a besoin que d'une seule (J'ai effacé `psk-vpn`).
+
+1. On besoin d'une communication entre `IPSec` (left) et `Visu` (right)
+
+```
+left=172.16.11.11
+right=192.168.11.100 # %any
+```
+
+2. L'authentification de `IPSec` se fait par un certificat. Celle de `Visu` est de type `eap-mschapv2`
+
+```
+leftauth=pubkey
+leftid=172.16.11.11
+leftcert=server-cert.pem
+leftsendcert=always
+
+rightauth=eap-mschapv2
+eap_identity=%identity # Demander les identifiant du client
+```
+
+3. Pour l'authentification de la machine `Visu` (et autres) on a besoin de créer des identifiants. Ceci se fait dans `/etc/ipsec.secrets`:
+
+```
+: RSA "server-key.pem"
+Visu : EAP "VisuMDP"
+```
+
+4. Finalement, on doit relancer de daemon de `StrongSwan`
+
+```bash
+systemctl restart ipsec
+```
+
+##### Configuration du client
+
+###### Installation de StrongSwan sur la machine `Visu`
+
+Pour cette étape il faut activer l'interface réseau NAT. Ensuite on met à jour la base apt et installer les packets suivant.
+
+```bash
+sudo apt update && sudo apt upgrade
+sudo apt install strongswan strongswan-starter strongswan-pki libcharon-extra-plugins libcharon-extauth-plugins libstrongswan-extra-plugins libtss2-tcti-tabrmd0 libcharon-extra-plugins package -y
+```
+
+###### Configuration IPSec
+
+Dans le fichier de configuration on faut répéter ce qu'on a fait pour le serveur mais inveser left par right.
+
+Donc dans `/etc/ipsec.conf`:
+
+```
+# Basic configuration
+
+config setup
+	strictcrlpolicy=no
+	uniqueids = yes
+
+# Add connections here.
+
+conn rsa-vpn
+	left=192.168.11.100           # %any
+	leftauth=eap-mschapv2
+	eap_identity=Visu             # Visu: Mon identifiant est Visu
+
+	right=172.16.11.11
+	rightid=172.16.11.11
+	rightauth=pubkey
+	auto=start
+```
+
+###### Authentification
+
+On copie le certificat du serveur VPN vers `Visu`
+
+Dans `IPSec`:
+
+```bash
+nc -l -p 3000 < pki/cacerts/ca-cert.pem
+```
+
+Dans `Visu`:
+
+```bash
+nc 172.16.11.11 3000 > /etc/ipsec.d/cacerts/ca-cert.pem
+```
+
+Maintenant on ajoute un identifiant et un mot de passe pour `Visu`. Dans `/etc/ipsec.secrets`:
+
+```
+Visu : EAP "VisuMDP"
+```
+
+Et on relance le daemon de `StrongSwan`:
+
+```bash
+sudo systemctl start strongswan-starter
+```
+
+###### It doesn't work
+
+L'authentification échoue avec la notification suivante:
+
+```
+[IKE] loading EAP_MSCHAPV2 method failed
+```
+
+J'ai cherché les raisons en ligne et apparament, ceci se produit parce qu'il manquent quelques package qu'on peut installer avec apt.
+
+```bash
+sudo apt update && sudo apt upgrade
+sudo apt install apt install libcharon-extra-plugins libstrongswan-extra-plugins
+```
+
+###### It works
+
+Après l'installation, si on fait un ping on voit ces packets passer sur la machine `Routeur`.
+
+![](https://i.imgur.com/aDC6iBp.png)
+
+### Configuration du proxy IPSec
+
+L'idée est simple, il faut que Visu envoye tout ses packets à `IPSec`.
+
+Sur `IPSec`, dans `/etc/ipsec.conf`:
+
+```
+leftsubnet=0.0.0.0/0		# Demande au client d'envoyer son traffic sur le VPN
+```
+
+Sur `Visu`, dans le fichier équivalent:
+
+```
+rightsubnet=0.0.0.0/0
+```
+
+###### It doesn't work well
+
+Ceci ne marche pas bien: Quand on ping `Raspbian` depuis `Visu`:
+
+Sur l'interface `enp0s3` (connecté à `IPSec`) on observe:
+
+![](https://i.imgur.com/DwfOo3V.png)
+
+et sur l'interface `enp0s8` (connectée à `Visu`):
+
+![](https://i.imgur.com/wRm3xkQ.png)
+
+Le problème ici et que l'addresse ip source est celle de la machine `Visu` et la réponse ne va pas passer par `IPSec`.
+
+###### Un fix
+
+Une solution simple est de créer un nouveau bloc d'addresse IP (virtuelles) et de donner à `Visu` une addresse ip.
+
+Sur `IPSec`, dans `/etc/ipsec.conf`:
+
+```
+rightsourceip=10.20.30.0/24
+```
+
+Et on utiliser `iptables` pour traduire ces addresses virtuelles à quelque chose que qui peut être routé par `Routeur`.
+
+```bash
+iptables -t nat -A POSTROUTING -s 10.20.30.0/24 -j MASQUERADE
+```
+
+Sur `Visu`, dans le fichier équivalent:
+
+```
+leftsourceip=%config			# Demander une addresse IP privée
+```
+
+Sur `wireshark` on confirme l'implémentation;
+
+![](https://i.imgur.com/MPHl0iw.png)
+
+<hr />
+<div style="font-size: 0.75em">
+
+C'est aussi possible d'ajouter une route sur `Routeur` pour transmettre le traffic sur `10.20.30.0/24` à `172.16.11.11` (j'ai testé et ça marche). Ceci est moins flexible parce elle depend de la plage virtuelle définie sur la machine `IPsec` mais elle offre moins de latence.
+
+Il y a sans doute plusieurs solutions valides. **_J'aimerai savoir laquelle est "good practice" et pourquoi s'il vous plaît_**.
+![](https://i.imgur.com/2RZcsml.png)
+
+</div>
+<hr />
+
+### Mise en place d’un proxy IPSec derrière un Firewall
+
+Pour la configuration du Firewall je vais utiliser `iptables`.
+La configuration sera sauvée sous `/root/iptables-vpn.sh`
+
+```bash
+#!/bin/sh
+
+# Désactiver le forwarding par defaut
+iptables -P FORWARD DROP
+
+# Autoriser le traffic de toute sorte de source ou à destination de IPSec
+iptables -A FORWARD -s 172.16.11.11 -j ACCEPT
+iptables -A FORWARD -d 172.16.11.11 -j ACCEPT
+
+# Si un traffic est établi, on continue à l'autoriser
+iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+```
+
+Ceci marche assez bien:
+
+- Si `Visu` n'est pas connectée au VPN, quand on ping `Camera`
+
+  - Un packet ICMP arrive sur le routeur mais il est rejeté:
+    ![](https://i.imgur.com/F7KLjGD.png)
+    ![](https://i.imgur.com/2mRl39X.png)
+  - Visu arrive à pinger `IPSec` et connecter au VPN
+
+- Si `Visu` est connectée au VPN, alors elle communique avec le réseau avec une IP NATée derrière `172.16.11.11` et le routeur accepte son traffic
+  - ![](https://i.imgur.com/6Phr5Yq.png)
+
+## Closing Remarks
+
+TP super intéressant. J'ai bien aimé la méthode `DIY` adoptée par ce TP parce que ça m'a donné la chance de contempler differentes solutions et évlauer les pros/cons.
