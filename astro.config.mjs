@@ -13,6 +13,9 @@ import preact from "@astrojs/preact";
 import prefetch from "@astrojs/prefetch";
 
 // https://astro.build/config
+import compress from "astro-compress";
+
+// https://astro.build/config
 export default defineConfig({
   integrations: [
     tailwind(),
@@ -21,6 +24,7 @@ export default defineConfig({
     prefetch({
       selector: "a[href^='/blog']",
     }),
+    compress(),
   ],
   markdown: {
     syntaxHighlight: "prism",
