@@ -53,9 +53,8 @@ module.exports = {
     utils: true,
     themes: [
       "light",
-      // "dark"
       {
-        dark: {
+        night: {
           primary: "#163D64",
           secondary: "#62757F",
           accent: "#DC4318",

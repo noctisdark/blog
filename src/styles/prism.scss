@@ -65,7 +65,7 @@ pre[class*="language-"] ::selection {
   color: hsl(221, 87%, 60%);
 }
 
-[data-theme="dark"] {
+[data-theme="night"] {
   // from https://github.com/PrismJS/prism-themes/blob/master/themes/prism-laserwave.css
   code[class*="language-"]::-moz-selection,
   code[class*="language-"] ::-moz-selection,

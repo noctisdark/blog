@@ -16,14 +16,17 @@ import LightTheme from "@components/icons/LightTheme.astro";
     "themeToggle"
   ) as HTMLInputElement;
 
-  const handleToggleClick = () => {
-    const theme = document.documentElement.dataset.theme,
-      nextTheme = theme === "dark" ? "light" : "dark";
-
-    applyTheme(nextTheme);
-    lightThemeSwitch.checked = getCurrentTheme() === "dark";
+  const onThemeChange = (newTheme: "light" | "night") => {
+    lightThemeSwitch.checked = newTheme === "night";
+    applyTheme(newTheme);
   };
 
-  lightThemeSwitch.checked = getCurrentTheme() === "dark";
+  const handleToggleClick = () => {
+    const theme = getCurrentTheme(),
+      nextTheme = theme === "night" ? "light" : "night";
+    onThemeChange(nextTheme);
+  };
+
+  onThemeChange(getCurrentTheme());
   lightThemeSwitch.addEventListener("click", handleToggleClick);
 </script>

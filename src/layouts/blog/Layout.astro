@@ -23,7 +23,20 @@ const {
 const tagDirectory = pluralize(tag).toLowerCase();
 ---
 
-<Layout title={title} description={description}>
+<Layout
+  title={title}
+  description={description}
+  seoProps={{
+    openGraph: {
+      basic: {
+        title: `Blog post: ${title}`,
+        type: "Blog post.",
+        image: "https://noctisdark.dev/media/avatar.png",
+      },
+      image: { alt: "Noctisdark blog icon" },
+    },
+  }}
+>
   <BlogHeader>
     <ul slot="breadcrumbs-items">
       <li><a href="/">/</a></li>
