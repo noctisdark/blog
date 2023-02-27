@@ -12,7 +12,7 @@ if (document.getElementById("threejs-scene")) {
     textureWidth: 512,
     textureHeight: 512,
     waterNormals: new THREE.TextureLoader().load(
-      "/media/waternormals.jpg",
+      "/static/media/waternormals.jpg",
       function (texture) {
         texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
       }

@@ -29,4 +29,15 @@ export default defineConfig({
   markdown: {
     syntaxHighlight: "prism",
   },
+  vite: {
+    build: {
+      rollupOptions: {
+        output: {
+          entryFileNames: "static/scripts/entry.[hash].js",
+          chunkFileNames: "static/scripts/chunks/chunk.[hash].js",
+          assetFileNames: "static/assets/asset.[hash][extname]",
+        },
+      },
+    },
+  },
 });
