@@ -10,8 +10,18 @@ import mdx from "@astrojs/mdx";
 import preact from "@astrojs/preact";
 
 // https://astro.build/config
+import prefetch from "@astrojs/prefetch";
+
+// https://astro.build/config
 export default defineConfig({
-  integrations: [tailwind(), mdx(), preact()],
+  integrations: [
+    tailwind(),
+    mdx(),
+    preact(),
+    prefetch({
+      selector: "a[href^='/blog']",
+    }),
+  ],
   markdown: {
     syntaxHighlight: "prism",
   },
