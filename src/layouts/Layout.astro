@@ -19,6 +19,7 @@ const { title, description, seoProps } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
     <SEO canonical="https://noctisdark.dev/" title={title} description={description} {...seoProps} />
+    <link rel="sitemap" href="/sitemap-index.xml">
     <title>{title}</title>
     <script is:inline>
       /* rogue script to set the theme at the speed of light - bypass bundling that is executed after rendering*/

@@ -16,7 +16,11 @@ import prefetch from "@astrojs/prefetch";
 import compress from "astro-compress";
 
 // https://astro.build/config
+import sitemap from "@astrojs/sitemap";
+
+// https://astro.build/config
 export default defineConfig({
+  site: "https://noctisdark.dev",
   integrations: [
     tailwind(),
     mdx(),
@@ -25,6 +29,7 @@ export default defineConfig({
       selector: "a[href^='/blog']",
     }),
     compress(),
+    sitemap(),
   ],
   markdown: {
     syntaxHighlight: "prism",
