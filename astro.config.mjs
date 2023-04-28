@@ -24,7 +24,7 @@ export default defineConfig({
   integrations: [
     tailwind(),
     mdx(),
-    preact(),
+    // preact(),
     prefetch({
       selector: "a[href^='/blog']",
     }),

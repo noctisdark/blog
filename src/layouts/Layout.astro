@@ -14,18 +14,25 @@ const { title, description, seoProps } = Astro.props;
 <!DOCTYPE html>
 <html lang="en">
   <head>
+    <script blocking="render" is:inline>
+      /* rogue script to set the theme at the speed of light - bypass bundling that is executed after rendering*/
+      const savedTheme = localStorage.getItem("theme");
+      if (savedTheme)
+        document.documentElement.setAttribute("data-theme", savedTheme);
+    </script>
+    
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
-    <SEO canonical="https://noctisdark.dev/" title={title} description={description} {...seoProps} />
-    <link rel="sitemap" href="/sitemap-index.xml">
+    <SEO
+      canonical="https://noctisdark.dev/"
+      title={title}
+      description={description}
+      {...seoProps}
+    />
+    <link rel="sitemap" href="/sitemap-index.xml" />
     <title>{title}</title>
-    <script is:inline>
-      /* rogue script to set the theme at the speed of light - bypass bundling that is executed after rendering*/
-      if (localStorage.getItem("theme"))
-        document.documentElement.dataset.theme = localStorage.getItem("theme");
-    </script>
   </head>
   <body class="flex flex-col min-h-screen items-center">
     <slot />
