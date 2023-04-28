@@ -1,19 +1,25 @@
 ---
-import BlogLayout from "@layouts/blog/Layout.astro";
-const frontmatter = {
-  title: "Blog home page",
-  description: "Blog home page",
-  timestamp: +new Date(),
-  duration: 1,
-};
+import Layout from "@layouts/Layout.astro";
+import BlogHeader from "@layouts/blog/Header.astro";
+import BlogCard from "@components/BlogCard.astro";
+
+const posts = await Astro.glob("./blog/**/*.mdx");
 ---
 
-<BlogLayout title="hello" frontmatter={frontmatter}>
-  <h2 id="home-page-state">State of the home page</h2>
-
-  <p>
-    In short: <code>W.I.P</code>.
-    <p></p>
-    <p>Somes pages are online and the home page will be available soon.</p>
-  </p>
-</BlogLayout>
+<Layout title="Blog" description="Blog home page">
+  <BlogHeader>
+    <ul slot="breadcrumbs-items">
+      <li>
+        <a href="/">/</a>
+      </li>
+      <li>
+        <a href="/blog">blog</a>
+      </li>
+    </ul>
+  </BlogHeader>
+  <main
+    class="max-w-screen-xl w-full px-4 py-8 flex flex-wrap gap-8 justify-center"
+  >
+    {posts.map((post) => <BlogCard post={post.frontmatter} />)}
+  </main>
+</Layout>
