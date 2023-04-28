@@ -1,0 +1,22 @@
+---
+import French from "./flags/French.astro";
+import English from "./flags/English.astro";
+
+interface Props {
+  language: "french" | "english";
+}
+
+const { language } = Astro.props;
+---
+
+<span>
+  {language === "french" ? <French /> : <English />}
+</span>
+
+
+<style>
+  span {
+    display: inline-block;
+    width: 24px;
+  }
+</style>

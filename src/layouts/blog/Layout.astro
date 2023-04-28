@@ -16,8 +16,8 @@ const {
   tag = "anonymous",
   timestamp,
   duration,
-  image,
-  author,
+  // image,
+  // author,
 } = Astro.props.frontmatter ? Astro.props.frontmatter : Astro.props;
 
 const tagDirectory = pluralize(tag).toLowerCase();

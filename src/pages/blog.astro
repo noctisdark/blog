@@ -4,6 +4,9 @@ import BlogHeader from "@layouts/blog/Header.astro";
 import BlogCard from "@components/BlogCard.astro";
 
 const posts = await Astro.glob("./blog/**/*.mdx");
+const sortedPosts = posts
+  .map((post) => post.frontmatter)
+  .sort((a, b) => b.timestamp - a.timestamp);
 ---
 
 <Layout title="Blog" description="Blog home page">
@@ -20,6 +23,6 @@ const posts = await Astro.glob("./blog/**/*.mdx");
   <main
     class="max-w-screen-xl w-full px-4 py-8 flex flex-wrap gap-8 justify-center"
   >
-    {posts.map((post) => <BlogCard post={post.frontmatter} />)}
+    {sortedPosts.map((post) => <BlogCard post={post} />)}
   </main>
 </Layout>

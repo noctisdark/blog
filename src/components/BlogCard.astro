@@ -1,5 +1,8 @@
 ---
 import pluralize from "pluralize";
+import { formatDate } from "@scripts/date";
+
+import Language from "./icons/Language.astro";
 
 interface Props {
   post: any;
@@ -16,8 +19,10 @@ const postUrl = `/blog/${tagDirectory}/${post.slug}`;
       <img src={post.image} alt={post.title} />
     </figure>
     <div class="card-body">
+      <span class="text-sm text-slate-400">{formatDate(post.timestamp)}</span>
       <div class="card-actions justify-start">
         <div class="badge badge-outline">{post.tag}</div>
+        <Language language={post.language} />
       </div>
 
       <h2 class="card-title">
