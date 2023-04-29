@@ -1,4 +1,5 @@
 ---
+import Email from "@components/icons/Email.astro";
 import Github from "@components/icons/Github.astro";
 import LinkedIn from "@components/icons/LinkedIn.astro";
 
@@ -17,6 +18,14 @@ const { style = "" } = Astro.props;
     <p>© 2022 - noctisdark</p>
   </div>
   <div class="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
+    <div class="tooltip" data-tip="Email me">
+      <a
+        rel="noopener norefenoopener noreferrer"
+        href="mailto:hi@noctisdark.dev"
+      >
+        <Email class="w-5 h-5" />
+      </a>
+    </div>
     <div class="tooltip" data-tip="Github">
       <a
         rel="noopener norefenoopener noreferrer"
