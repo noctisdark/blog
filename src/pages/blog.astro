@@ -10,12 +10,14 @@ const sortedPosts = posts
   .sort((a, b) => b.timestamp - a.timestamp);
 
 const urlForPost = (post) =>
-  `/blog/${pluralize(post.tag).toLowerCase()}/${post.slug}`;
+  `/blog/${pluralize(post.tag).toLowerCase()}/${post.slug}/`;
 ---
 
 <Layout
-  title="/blog @ noctisdark - Dev Blog"
+  path="/blog/"
+  title="Dev Blog"
   description="Grab a cup of coffee and start exploring. We hope you find something useful and entertaining along the way!"
+  keywords={["Dev", "Blog", "Posts", "Articles"]}
 >
   <BlogHeader>
     <ul slot="breadcrumbs-items">
@@ -23,7 +25,7 @@ const urlForPost = (post) =>
         <a href="/">/</a>
       </li>
       <li>
-        <a href="/blog">blog</a>
+        <a href="/blog/">blog</a>
       </li>
     </ul>
   </BlogHeader>

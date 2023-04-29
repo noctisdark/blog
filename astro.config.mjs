@@ -26,7 +26,7 @@ export default defineConfig({
     mdx(),
     // preact(),
     prefetch({
-      selector: "a[href^='/blog']",
+      selector: "a[href^='/blog/']",
       throttle: 3,
     }),
     compress(),

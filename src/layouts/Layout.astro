@@ -5,11 +5,12 @@ import { SEO } from "astro-seo";
 export interface Props {
   title: string;
   description: string;
+  path?: string;
   keywords?: string[];
   seoProps?: object;
 }
 
-const { title, description, keywords = [], seoProps } = Astro.props;
+const { title, description, path = "/", keywords = [], seoProps } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -27,7 +28,7 @@ const { title, description, keywords = [], seoProps } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
     <SEO
-      canonical="https://noctisdark.dev/"
+      canonical={`https://noctisdark.dev${path}`}
       title={title}
       description={description}
       {...seoProps}

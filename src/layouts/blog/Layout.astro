@@ -22,9 +22,11 @@ const {
 } = Astro.props.frontmatter ? Astro.props.frontmatter : Astro.props;
 
 const tagDirectory = pluralize(tag).toLowerCase();
+const urlForPost = `/blog/${tagDirectory}/${slug}/`;
 ---
 
 <Layout
+  path={urlForPost}
   title={title}
   description={description}
   keywords={keywords}
@@ -43,7 +45,7 @@ const tagDirectory = pluralize(tag).toLowerCase();
     <ul slot="breadcrumbs-items">
       <li><a href="/">/</a></li>
       <li>{tag}</li>
-      <li><a href={`/blog/${tagDirectory}/${slug}`}>{title}</a></li>
+      <li><a href={urlForPost}>{title}</a></li>
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
