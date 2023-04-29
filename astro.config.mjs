@@ -27,6 +27,7 @@ export default defineConfig({
     // preact(),
     prefetch({
       selector: "a[href^='/blog']",
+      throttle: 3,
     }),
     compress(),
     sitemap(),
