@@ -5,10 +5,11 @@ import { SEO } from "astro-seo";
 export interface Props {
   title: string;
   description: string;
+  keywords?: string[];
   seoProps?: object;
 }
 
-const { title, description, seoProps } = Astro.props;
+const { title, description, keywords = [], seoProps } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -20,7 +21,7 @@ const { title, description, seoProps } = Astro.props;
       if (savedTheme)
         document.documentElement.setAttribute("data-theme", savedTheme);
     </script>
-    
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
@@ -31,6 +32,13 @@ const { title, description, seoProps } = Astro.props;
       description={description}
       {...seoProps}
     />
+    {
+      keywords.length ? (
+        <meta name="keywords" content={keywords.join(",")} />
+      ) : (
+        void 0
+      )
+    }
     <link rel="sitemap" href="/sitemap-index.xml" />
     <title>{title}</title>
   </head>

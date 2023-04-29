@@ -13,7 +13,10 @@ const urlForPost = (post) =>
   `/blog/${pluralize(post.tag).toLowerCase()}/${post.slug}`;
 ---
 
-<Layout title="Blog" description="Blog home page">
+<Layout
+  title="/blog @ Noctisdark - Dev Blog"
+  description="Grab a cup of coffee and start exploring. We hope you find something useful and entertaining along the way!"
+>
   <BlogHeader>
     <ul slot="breadcrumbs-items">
       <li>
