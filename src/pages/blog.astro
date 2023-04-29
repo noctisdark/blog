@@ -14,7 +14,7 @@ const urlForPost = (post) =>
 ---
 
 <Layout
-  title="/blog @ Noctisdark - Dev Blog"
+  title="/blog @ noctisdark - Dev Blog"
   description="Grab a cup of coffee and start exploring. We hope you find something useful and entertaining along the way!"
 >
   <BlogHeader>
@@ -27,15 +27,25 @@ const urlForPost = (post) =>
       </li>
     </ul>
   </BlogHeader>
+  <h1 class="mb-8 text-3xl font-extrabold glow text-yellow-400 font-mono">
+    /* Posts */
+  </h1>
+
   <main
     class="max-w-screen-xl w-full px-4 py-8 flex flex-wrap gap-8 justify-center"
   >
     {
       sortedPosts.map((post) => (
-        <a href={urlForPost(post)}>
+        <a class="max-w-full" href={urlForPost(post)}>
           <BlogCard post={post} />
         </a>
       ))
     }
   </main>
 </Layout>
+
+<style>
+  .glow {
+    text-shadow: 0 0 8px;
+  }
+</style>
