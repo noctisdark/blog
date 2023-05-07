@@ -10,7 +10,7 @@ export interface Props {
   seoProps?: object;
 }
 
-const { title, description, path = "/", keywords = [], seoProps } = Astro.props;
+const { title, description, keywords = [], seoProps } = Astro.props;
 ---
 
 <!DOCTYPE html>
@@ -27,11 +27,7 @@ const { title, description, path = "/", keywords = [], seoProps } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
-    <SEO
-      title={title}
-      description={description}
-      {...seoProps}
-    />
+    <SEO title={title} description={description} {...seoProps} />
     {
       keywords.length ? (
         <meta name="keywords" content={keywords.join(",")} />

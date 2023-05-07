@@ -17,12 +17,12 @@ const {
   timestamp,
   duration,
   keywords,
+  language,
   // image,
   // author,
 } = Astro.props.frontmatter ? Astro.props.frontmatter : Astro.props;
 
-const tagDirectory = pluralize(tag).toLowerCase();
-const urlForPost = `/blog/${tagDirectory}/${slug}/`;
+const languageId = language.slice(0, 2); // this will work for now
 ---
 
 <Layout
@@ -52,7 +52,7 @@ const urlForPost = `/blog/${tagDirectory}/${slug}/`;
       <code class="text-lg bg-transparent text-info glow m-4">/* {tag} */</code>
     </div>
 
-    <article class="main-area">
+    <article class="main-area" lang={languageId}>
       <h1 class="text-center">{title}</h1>
       <Metadata timestamp={timestamp} duration={duration} tag={tag} />
       <slot />
