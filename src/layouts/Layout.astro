@@ -28,7 +28,6 @@ const { title, description, path = "/", keywords = [], seoProps } = Astro.props;
     <link rel="icon" type="image/svg+xml" href="/media/avatar.png" />
     <meta name="generator" content={Astro.generator} />
     <SEO
-      canonical={`https://noctisdark.dev${path}`}
       title={title}
       description={description}
       {...seoProps}

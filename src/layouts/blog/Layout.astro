@@ -26,7 +26,6 @@ const urlForPost = `/blog/${tagDirectory}/${slug}/`;
 ---
 
 <Layout
-  path={urlForPost}
   title={title}
   description={description}
   keywords={keywords}
@@ -45,7 +44,7 @@ const urlForPost = `/blog/${tagDirectory}/${slug}/`;
     <ul slot="breadcrumbs-items">
       <li><a href="/">/</a></li>
       <li>{tag}</li>
-      <li><a href={urlForPost}>{title}</a></li>
+      <li>{title}</li>
     </ul>
   </BlogHeader>
   <main class="max-w-screen-lg w-full px-4 py-8 prose">
@@ -72,9 +71,3 @@ const urlForPost = `/blog/${tagDirectory}/${slug}/`;
     text-shadow: 0 0 8px;
   }
 </style>
-
-<!-- <script>
-  import setupCodeTabs from "@scripts/codetabs";
-  setupCodeTabs();
-</script>
--->
