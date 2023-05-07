@@ -88,9 +88,7 @@ if (document.getElementById("typewriter-canvas")) {
     .typeString("--------------------------------<br/>")
     .pauseFor(shortPause)
     .changeDelay(slowerDelay)
-    .typeString(
-      "<h1 class='text-3xl font-bold'>Hello there !</h1><br/><br/>"
-    )
+    .typeString("<h1 class='text-3xl font-bold'>Hello there !</h1><br/><br/>")
     .changeDelay(defaultDelay)
     .pauseFor(normalPause)
     .terminal({ name: "kernel" })

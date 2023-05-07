@@ -287,7 +287,7 @@ const computeNavigation = (
 
 export const createFloatingNavigation = () => {
   const article = getArticle();
-  if ( !article ) return;
+  if (!article) return;
 
   const headings = getArticleHeadings();
   const {
