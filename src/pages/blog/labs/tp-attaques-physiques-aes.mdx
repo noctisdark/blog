@@ -61,10 +61,9 @@ target_byte = 0
 
 ### 13. Quelles sont les dimensions de cette matrice P ? Pourquoi ?
 
-<code>
-  P<sub>Hw,k</sub> = HW(SB(k<sub>0</sub> ⊕ s<sub>0</sub>))
-</code>
-. La matrice P est ainsi de taille `256 x N` où N est le nombre de traces.
+<code>P<sub>Hw,k</sub> = HW(SB(k<sub>0</sub> ⊕ s<sub>0</sub>))</code>.
+
+La matrice P est ainsi de taille `256 x N` où `N` est le nombre de traces.
 
 ```python
 target_plain_bytes = plaintexts[:, target_byte]
