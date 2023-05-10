@@ -49,7 +49,7 @@ const { style = "" } = Astro.props;
   /* Pretty sure these styles aren't enough, TODO: complete the styles */
   .footer {
     /* tooltips show scrollbars sometimes, giving space seems like the easiest fix */
-    width: 95%;
+    width: 95% !important; /*override*/
     margin-top: auto;
     align-self: center;
   }
