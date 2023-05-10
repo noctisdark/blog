@@ -11,6 +11,7 @@ language: "french"
 image: "https://i.imgur.com/iotreWV.png"
 keywords:
   ["Cryptography", "Cybersecurity", "Hardware Security", "Statistical analysis"]
+links: ["tp-malware-android", "tp-pentest-ad"]
 ---
 
 ## CPA sur AES
@@ -61,7 +62,10 @@ target_byte = 0
 
 ### 13. Quelles sont les dimensions de cette matrice P ? Pourquoi ?
 
-<code>P<sub>Hw,k</sub> = HW(SB(k<sub>0</sub> ⊕ s<sub>0</sub>))</code>.
+<code>
+  P<sub>Hw,k</sub> = HW(SB(k<sub>0</sub> ⊕ s<sub>0</sub>))
+</code>
+.
 
 La matrice P est ainsi de taille `256 x N` où `N` est le nombre de traces.
 
