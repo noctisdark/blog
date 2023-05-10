@@ -23,7 +23,7 @@ module.exports = {
             },
 
             a: {
-              // these are basically long words, not breaking them can hurt layout on small phones
+              // these are basically long words, not breaking them can hurt layout on small screen sizes
               "word-break": "break-all",
             },
 

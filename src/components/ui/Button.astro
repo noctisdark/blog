@@ -1,10 +1,17 @@
 ---
-const { as = "button", class: clazz = "", ...props } = Astro.props;
+const {
+  as = "button",
+  class: clazz = "",
+  textTransform = "normal-case",
+  ...props
+} = Astro.props;
+
+const classes = `btn ${textTransform} ${clazz}`;
 ---
 
 {
   as === "button" && (
-    <button class={`btn ${clazz}`} {...props}>
+    <button class={classes} {...props}>
       <slot />
     </button>
   )
@@ -12,7 +19,7 @@ const { as = "button", class: clazz = "", ...props } = Astro.props;
 
 {
   as === "link" && (
-    <a class={`btn ${clazz}`} {...props}>
+    <a class={classes} {...props}>
       <slot />
     </a>
   )
@@ -20,14 +27,8 @@ const { as = "button", class: clazz = "", ...props } = Astro.props;
 
 {
   as === "label" && (
-    <label class={`btn ${clazz}`} {...props}>
+    <label class={classes} {...props}>
       <slot />
     </label>
   )
 }
-
-<style is:global>
-  .btn {
-    text-transform: unset;
-  }
-</style>
