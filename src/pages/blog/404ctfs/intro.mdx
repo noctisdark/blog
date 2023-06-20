@@ -1,0 +1,60 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "404CTF Writeup - Introduction"
+description: "Co-organized by the Direction Générale de la Sécurité Extérieure (DGSE) and Télécom SudParis, the 404 CTF is France's biggest cybersecurity competition. In this first part of the writeup, we explore the first challenges of this contest."
+author: "Majed Abdennadher"
+timestamp: 1687239953778
+duration: 10
+tag: "404CTF"
+slug: "intro"
+language: "english"
+image: "/static/media/404ctf_logo.png"
+keywords:
+  ["Cybersecurity", "404CTF", "Diverse"]
+links: []
+---
+
+## Introduction to the contest
+
+> Co-organized by the Direction Générale de la Sécurité Extérieure (DGSE) and Télécom SudParis, the 404 CTF is France's biggest cybersecurity competition. Following the success of the 2022 edition, which celebrated the double anniversary of the BCRA and the DGSE, this second edition will honor the great figures of French literature.
+>
+> For one month, take on challenges designed by Télécom SudParis' HackademINT cybersecurity club. Whether you're an expert or a beginner, don't hesitate to put your skills to the test during this individual CTF!
+
+### First challenges:
+
+#### [Bienvenue !](https://ctf.404ctf.fr/challenges#Bienvenue%20!-3)
+
+Looking at the challenge description:
+
+> Maintenant, si vous souhaitez accéder au reste du 404 CTF, nous vous invitons à lire la page des règles. Le premier flag s'y trouve afin que vous puissiez valider la présente épreuve et débloquer les autres énoncés.
+
+When visiting [the rules page](https://ctf.404ctf.fr/rules), we find the first flag.
+
+> Mais nous vous donnons le premier flag ici : `404CTF{c'est parti}`.
+
+#### [Exemple de connexion distante](https://ctf.404ctf.fr/challenges#Exemple%20de%20connexion%20distante-87)
+
+Again in the challenge description:
+
+> Le présent exemple vous demande simplement de vous connecter, et le flag vous sera donné immédiatement.
+>
+> `nc challenges.404ctf.fr 30076`
+
+Doing exactly that, we get the flag: `404CTF{I_<3_nc}`
+
+#### [Discord](https://ctf.404ctf.fr/challenges#Discord-92)
+
+For the flag, you have to search the discord. There are two clues: the CTF opening date and the challenge description.
+We land on this post in the `announces` channel on the discord server:
+
+
+
+> Ça y est, le 404 CTF est enfin ouvert 🎉
+>
+> Vous aurez jusqu'au 4 juin 2023 pour découvrir tous nos challenges et marquer autant de points que possible !
+>
+> Rendez-vous sur ctf.404ctf.fr pour l'ouverture 💻
+>
+> Les inscriptions restant ouvertes, vous pourrez vous inscrire tout du long de la compétition au même lien !
+>
+> `404CTF{Un_bon_pour_un_cafe_gratuit}`
