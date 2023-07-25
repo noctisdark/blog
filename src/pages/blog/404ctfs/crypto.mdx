@@ -1,0 +1,212 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "404CTF Writeup - Cryptography"
+description: "404CTF Challnges in the Cryptography category."
+author: "Majed Abdennadher"
+timestamp: 1690309434918
+duration: 10
+tag: "404CTF"
+slug: "crypto"
+language: "english"
+image: "/static/media/404ctf/event_logo.png"
+keywords:
+  ["Cybersecurity", "404CTF", "Cryptography"]
+links: ["intro", "web"]
+---
+
+### Recette
+
+This challenge is pretty straightforward. We are given a sequence of bytes and instructions to decode them.
+
+- Sequence: 32 69 31 73 34 69 31 73 31 35 64 31 6f 34 39 69 31 6f 34 64 31 6f 33 69 31 6f 31 35 64 31 6f 32 32 64 31 6f 32 30 64 31 6f 31 39 69 31 6f 37 64 31 6f 35 64 31 6f 32 69 31 6f 35 35 69 31 6f 31 64 31 6f 31 39 64 31 6f 31 37 64 31 6f 31 38 64 31 6f 32 39 69 31 6f 31 32 69 31 6f 32 36 69 31 6f 38 64 31 6f 35 39 64 31 6f 32 37 69 31 6f 36 64 31 6f 31 37 69 31 6f 31 32 64 31 6f 37 64 31 6f 35 69 31 6f 31 64 31 6f 32 64 31 6f 31 32 69 31 6f 39 64 31 6f 32 36 64 31 6f
+
+- Steps:
+  1. Hexadecimal decoding
+  2. Expand to eliminate digits
+  3. Decode DeadFish
+  4. Decode base85
+
+#### Step 1: Hexadecimal decoding
+
+```javascript
+const sequence = "32 69 31 73 34 69 31 73 31 35 64 31 6f 34 39 69 31 6f 34 64 31 6f 33 69 31 6f 31 35 64 31 6f 32 32 64 31 6f 32 30 64 31 6f 31 39 69 31 6f 37 64 31 6f 35 64 31 6f 32 69 31 6f 35 35 69 31 6f 31 64 31 6f 31 39 64 31 6f 31 37 64 31 6f 31 38 64 31 6f 32 39 69 31 6f 31 32 69 31 6f 32 36 69 31 6f 38 64 31 6f 35 39 64 31 6f 32 37 69 31 6f 36 64 31 6f 31 37 69 31 6f 31 32 64 31 6f 37 64 31 6f 35 69 31 6f 31 64 31 6f 32 64 31 6f 31 32 69 31 6f 39 64 31 6f 32 36 64 31 6f";
+const step1 = sequence.split(" ").map(x => String.fromCharCode(parseInt(x, 16))).join("");
+console.log(step1);
+/*2i1s4i1s15d1o49i1o4d1o3i1o15d1o22d1o20d1o19i1o7d1o5d1o2i1o55i1o1d1o19d1o17d1o18d1o29i1o12i1o26i1o8d1o59d1o27i1o6d1o17i1o12d1o7d1o5i1o1d1o2d1o12i1o9d1o26d1o*/
+```
+
+#### Step 2: Expand to eliminate digits
+
+Notice how the result of step1 is a sequence of numbers followed by either `i`, `d`, `s` or `o`.
+The goal of this step is to repeat a character by the number that precedes it. The result is indicated by step 3 is a DeadFish code.
+
+[Deadfish](https://esolangs.org/wiki/Deadfish) is an esoteric programming language similar to Brainfuck.
+
+```javascript
+const parseOne = (sequence, i, d = "") => (sequence[i] <= '9' && sequence[i] >= '0') ? parseOne(sequence, i+1, d + sequence[i]) : [+d, sequence[i], i+1];
+let index = 0;
+let step2 = "";
+while ( index < step1.length ) {
+  const [count, char, nextIndex] = parseOne(step1, index);
+  step2 += char.repeat(count);
+  index = nextIndex;
+}
+
+console.log(step2);
+/*iisiiiisdddddddddddddddoiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiioddddoiiiodddddddddddddddoddddddddddddddddddddddoddddddddddddddddddddoiiiiiiiiiiiiiiiiiiiodddddddodddddoiioiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiododddddddddddddddddddodddddddddddddddddoddddddddddddddddddoiiiiiiiiiiiiiiiiiiiiiiiiiiiiioiiiiiiiiiiiioiiiiiiiiiiiiiiiiiiiiiiiiiioddddddddodddddddddddddddddddddddddddddddddddddddddddddddddddddddddddoiiiiiiiiiiiiiiiiiiiiiiiiiiioddddddoiiiiiiiiiiiiiiiiioddddddddddddodddddddoiiiiiododdoiiiiiiiiiiiiodddddddddoddddddddddddddddddddddddddo*/
+```
+
+#### Step 3: Decode DeadFish
+
+In this step, we can write our own DeadFish interpreter (very simple) or use one online.
+
+But because I'm efficient 😎, I'm using an already made one from [dCode](https://www.dcode.fr/deadfish-language).
+
+![](/static/media/404ctf/recette-1.png)
+
+This gives us the following string: `1b^aR<(;4/1hgTC1NZtl1LFWKDIHFRI/`
+
+#### Step 4: Decode base85
+
+Same stuff, [in a different dCode page](https://www.dcode.fr/ascii-85-encoding).
+
+![](/static/media/404ctf/recette-2.png)
+
+The flag is: `404CTF{M4igr3t_D3_c4naRd}`
+
+### Dessine-moi une courbe elliptique
+
+In this challenge, we are provided with two files:
+- a Python script performing some encryption operations on the flag
+- a data file displayed by this encryption program.
+
+We can see that the flag is encrypted using the AES algorithm in CBC mode, with a random initialization vector and a key equal to the sum of the parameters of an elliptic curve.
+
+In the data file, we have:
+- two random points of the elliptic curve
+- the characteristic of the finite field on which the curve is based
+- the encrypted flag and the initialization vector.
+
+To solve the challenge, we have to find the parameters `a` and `b` of the elliptic curve, which will give us back the key used to encrypt the flag.
+
+Remember that the equation of an elliptic curve parameterized  by `a` and `b` is given by: `y^2 = x^3 + ax + b`.
+
+Since we're two points on the curve, this is a simple linear system of 2 unknowns.
+We can use an online tool for this, but I just wrote the equations in python because it isn't really complicated:
+
+```python
+import hashlib
+from Crypto.Cipher import AES
+
+p = 231933770389389338159753408142515592951889415487365399671635245679612352781
+
+G = [
+  93808707311515764328749048019429156823177018815962831703088729905542530725, 144188081159786866301184058966215079553216226588404139826447829786378964579
+]
+
+H = [
+  139273587750511132949199077353388298279458715287916158719683257616077625421, 30737261732951428402751520492138972590770609126561688808936331585804316784
+]
+
+a = ((pow(G[1], 2, p) - pow(H[1], 2, p)) - (pow(G[0], 3, p) - pow(H[0], 3, p)))*pow(G[0] - H[0], -1, p) % p
+b = (pow(G[1], 2, p) - pow(G[0], 3, p) - a * G[0]) % p
+
+assert pow(G[1], 2, p) == (pow(G[0], 3, p) + a*G[0] + b) % p
+assert pow(H[1], 2, p) == (pow(H[0], 3, p) + a*H[0] + b) % p
+print(a, b)
+
+iv = bytes.fromhex("00b7822a196b00795078b69fcd91280d")
+key = str(a) + str(b)
+encrypted = bytes.fromhex("8233d04a29befd2efb932b4dbac8d41869e13ecba7e5f13d48128ddd74ea0c7085b4ff402326870313e2f1dfbc9de3f96225ffbe58a87e687665b7d45a41ac22")
+aes = AES.new(hashlib.sha1(key.encode()).digest()[:16], AES.MODE_CBC, IV=iv)
+flag = aes.decrypt(encrypted)
+print(flag)
+# 404CTF{70u735_l35_gr4nd35_p3r50nn3s_0nt_d_@b0rd_373_d35_3nf4n7s}
+```
+
+And the flag is: `404CTF{70u735_l35_gr4nd35_p3r50nn3s_0nt_d_@b0rd_373_d35_3nf4n7s}`
+
+### Le jour de l'espace
+
+In this challenge, we have access to an encryption oracle and a message encrypted by this oracle: `ueomaspblbppadgidtfn`.
+To solve this challenge, we need to analyze how this oracle works and then decrypt the given message.
+
+The first thing we notice about the encryption oracle is that the ciphertext's length is always a multiple of 5 and only produces lower-case characters from `a` to `y`.
+The oracle acts like a block cipher of length 5.
+
+```
+$ a
+> aaaaa
+
+$ b
+> jlfnt
+
+$ ba
+> jlfnt
+
+$ baa
+> jlfnt
+
+... and so on
+```
+
+Another important thing to notice is that adding an a to the suffix of a text doesn't change its ciphertext. This motivated me to encode blocks using numbers starting from `a -> 0` and `b -> 1` etc...
+
+Now in the simplest of worlds, this cipher would be a linear cipher and luckily, it looks like it is the case since we've already seen that:
+ - `C((0,0,0,0,0)) = (0,0,0,0,0)` as given by the encryption of the message `aaaaa`.
+ - `C((0,1,0,0,0)) = C((1,0,0,0,0)) + C((0,1,0,0,0)) mod 25` as given by the encryptions of `bb`, `b` and `ab`.
+
+If this is indeed the case, then `C(Message) = A*Message mod 25` where A is a matrix.
+
+To determine `A`, we just need to feed unit vectors to the encryption oracle (`baaaa`, `abaaa`, ..., `aaaab`), each one will return a column of `A`.
+
+```
+    |  9, 11,  5, 13, 19 |  
+    |  4,  0,  6, 14, 21 |  
+A = | 18,  2,  7, 15, 22 |  
+    | 20,  1, 10, 16, 23 |  
+    |  8,  3, 12, 17, 24 | 
+```
+
+Solving the challenge is as easy as inverting this matrix in `Z_25`. This is doable if `det(A) != 0` and given by `A^-1 = Adj(A)/det(A)`. Where `Adj(A)` is the adjugate of `A`.
+
+I used an online tool to solve this system and it came up with this message: `barjavelmaassassinea`.
+
+It didn't work at first, but then I realised that the `a` in the end doesn't matter, because the oracle always pads with `a` to produce multiples of 25.
+
+Thus, the flag is: `404CTF{barjavelmaassassine}`.
+
+### ASCON Marchombre
+
+This challenge is pretty straightforward: we have to decipher a message from a key and a nonce given to us.
+- key: 00456c6c616e61206427416c2d466172
+- nonce: 0
+- ciphetext: ac6679386ffcc3f82d6fec9556202a1be26b8af8eecab98783d08235bfca263793b61997244e785f5cf96e419a23f9b29137d820aab766ce986092180f1f5a690dc7767ef1df76e13315a5c8b04fb782
+- associated data: 80400c0600000000
+
+I think the motivation behind this one is to teach us about new encryption algorithms.
+In this case, the name of the algorithm is given in the challenge name: `Ascon`.
+
+I found a python library that implements ASCON encryption and decryption, so I used it to solve this challenge:
+
+```python
+from pyascon.ascon import *
+
+key = bytes.fromhex("00456c6c616e61206427416c2d466172")
+none = b'\x00' * 16
+associateddata = bytes.fromhex("80400c0600000000")
+ciphertext = bytes.fromhex("ac6679386ffcc3f82d6fec9556202a1be26b8af8eecab98783d08235bfca263793b61997244e785f5cf96e419a23f9b29137d820aab766ce986092180f1f5a690dc7767ef1df76e13315a5c8b04fb782")
+
+print(ascon_decrypt(
+  key,
+  none,
+  associateddata,
+  ciphertext,
+).decode('latin')) # Since we are using french
+# La voie de l'ombre
+# Et du silence
+# 404CTF{V3r5_l4_lum1èr3.}
+# Ellana
+```
+
+And you can see that the flag is: `404CTF{V3r5_l4_lum1èr3.}`

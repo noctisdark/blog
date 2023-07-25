@@ -6,15 +6,15 @@ author: "Majed Abdennadher"
 timestamp: 1687280554256
 duration: 10
 tag: "404CTF"
-slug: "web-challenges"
+slug: "web"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
 keywords:
   ["Cybersecurity", "404CTF", "Diverse"]
-links: ["intro"]
+links: ["intro", "crypto"]
 ---
 
-### [Le loup et le renard](https://ctf.404ctf.fr/challenges#Le%20Loup%20et%20le%20renard-88)
+### Le loup et le renard
 
 As this is the first challenge, we expect an easy solution.
 We visit the [website](https://le-loup-et-le-renard.challenges.404ctf.fr/) and look at the sources:
@@ -39,7 +39,7 @@ There are many ways of bypassing the execution of this script. I initially tried
 
 As the flag indicates, the page may have been protected by an authentication mechanism, in which case the command will be more complicated.
 
-### [L'Académie du détail](https://ctf.404ctf.fr/challenges#L'Acad%C3%A9mie%20du%20d%C3%A9tail-18)
+### L'Académie du détail
 
 We visit the [website](https://academie.challenges.404ctf.fr/) and do some exploring.
 Nothing interesting after looking at the sources so we turn out attention to the [authentication page](https://academie.challenges.404ctf.fr/login).
@@ -68,7 +68,7 @@ Swapping the token in the token with this new value and reloading the page shoul
 
 And that's it, it worked !
 
-### [La Vie Française](https://ctf.404ctf.fr/challenges#La%20Vie%20Fran%C3%A7aise-113)
+### La Vie Française
 
 We visit the [website](https://academie.challenges.404ctf.fr/) and do some exploring:
 To sum it up:
@@ -147,7 +147,7 @@ We try those credentials and access the `/admin` route for the flag.
 ![](/static/media/404ctf/la-vie-française-3.png)
 
 
-### [Fuite en 1791](https://ctf.404ctf.fr/challenges#Fuite%20en%201791-19)
+### Fuite en 1791
 
 We visit the [challenge website](https://ddfc.challenges.404ctf.fr/). After walking around, we find that the flag url is given to url, but it is protected by an expiry date and a signature.
 ![](/static/media/404ctf/fuite-en-1791-1.png)
