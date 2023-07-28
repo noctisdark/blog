@@ -158,8 +158,11 @@ But maybe could have inveted his own signature algorithm, in which can we can tr
 
 ![](/static/media/404ctf/fuite-en-1791-2.png)
  
-Let's try out different values of the `expiry` and `signature` and we notice that some values do work (return "Expired Link" instead of "Invalid signature"), For example: "expiry=-5625891070&signature=wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sv".
-The signature looks be a base64 encoding for the expiry value + maybe some salt or something similar.
+Let's try out different values of the `expiry` and `signature` and we notice that some values do work (return "Expired Link" instead of "Invalid signature").
+
+For example:  <span class="break-words">`expiry=-5625891070&signature=wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sv`</span>.
+
+The signature looks like a base64 encoding for the expiry value + maybe some salt or something similar.
 
 I ran out this experiment a bit furthur, my initial goal was to get the right signature for `expiry=-0000000000` and these are the results I got:
 
