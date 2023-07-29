@@ -1,0 +1,164 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "404CTF Writeup - Steganography"
+description: "404CTF Challenges in the Steganography category."
+author: "Majed Abdennadher"
+timestamp: 1690606287253
+duration: 10
+tag: "404CTF"
+slug: "stegano"
+language: "english"
+image: "/static/media/404ctf/event_logo.png"
+keywords:
+  ["Cybersecurity", "404CTF", "Steganography"]
+links: ["intro", "web", "crypto"]
+---
+
+### Odobenus Rosmarus
+
+In this CTF challenge, participants are presented with a cryptic text.
+The task is to decipher the hidden message encoded within the given text
+
+```
+Ce soir je Célèbre Le Concert Electro Comme Louis Et Lou. Comme La nuit Commence Et Continue Clairement, Et Clignote Lascivement il Chasse sans Chausser En Clapant Encore Classiquement Les Cerclages du Clergé. Encore Car Encore, Louis Lou Entamant Longuement La Lullabile En Commençant Le Cercle Exhaltant de Club Comique Cannais Et Clermontois.
+```
+
+Rightaway you can notice the irregular casing, some words start with an upper case and it's always some `L`, `C` or `E`. This hints at a kind of ternary code, but which one is it ?
+
+A hint lies in the challenge name: `Odobenus Rosmarus` which is the formal name for a Walrus, or morse.
+There are 6 differents mappings, I tried them and the one that made sense was `{C -> ., L -> -, E -> }`, which yields:
+
+```
+..-. .- -.-. .. .-.. . .-.. . -- --- .-. ... .
+```
+
+We plug this in [dCode](https://www.dcode.fr/code-morse), and we get the flag: `404CTF{FACILELEMORSE}`.
+
+### L'Œuvre
+
+This challenge states that a hidden images lies within the following image:
+
+![](/static/media/404ctf/loeuvre-1.png)
+
+A commonly for revealing "hidden" pixels in an image is [stegsolve](https://wiki.bi0s.in/steganography/stegsolve/), which you can install like this:
+
+```bash
+wget http://www.caesum.com/handbook/Stegsolve.jar -O stegsolve.jar
+chmod +x stegsolve.jar
+# Execute
+java -jar stegsolve.jar
+```
+
+We can open the image and walk through the different channels until we see a hidden message:
+
+![](/static/media/404ctf/loeuvre-2.png)
+
+And the flag is: `404CTF{C3z4nne3_ouVr3_To1}`
+
+### Les félicitations
+
+The challenge is about finding hidden "super congratulation" within the following paragraph:
+
+```
+Tous etaient reunis dans la salle,
+Criblant leur feuille de mots et posant leurs esprits sur papier.
+Très encouragés par le deroulement des opérations,
+Il suffisait simplement de les regarder pour voir leur devotion
+.-.. . -.-. --- -.. . -- --- .-. ... . -.-. . ... - ... -.-- -- .--. .-
+Beaucoup d'entre eux etaient fiers de leur oeuvre
+Cillant à peine quand dehors, un monstre jappait
+Fierté mène cependant à orgueil
+Et n'oubliez pas qu'orgueil mene a perte. 
+-- .- .. ... .-.. .- -.-. .- ... . .-. - .- .-. .. . -. .... .- .... .-
+Juste au moment ou leurs travaux allaient finir,
+Hors du laboratoire, un cri retentissant fut émis
+Peu d'humains avaient entendu ce genre de cris.
+Exténués par cette énième attaque, les scientifiques se remirent au travail. 
+```
+
+You might have noticed the morse code, which when translated reads:
+
+```
+LECODEMORSECESTSYMPA
+MAISLACASERTARIENHAHA
+```
+
+Which says that morse code is nice but here it's useless.
+
+I think I found the answer by chance, so I don't really have an advice here.
+If you look at the diagonal of the first part of the paragraph, you can find the word `Très` and that is a reasonable start for a congratulation.
+
+Doing the same thing for others parts of the paragraph (seperated by the morse code) yields `TrèsBienJoué` which is a congratulation in French.
+
+So the flag was: `404CTF{TrèsBienJoué}`.
+
+### Le Rouge et le vert, avec un soupçon de bleu
+
+The goal of this challenge is unveiling a hidden message inside an image:
+
+![](/static/media/404ctf/rouge-vert-blue-1.png)
+
+Unlike the other similar challenge, the image in this is basically a paragraph save for the suspicious line in the end.
+
+The last line contains some colors and seemingly random numbers. Trying out the first letters in different formats suggest that this is an ascii code for some message.
+
+I used python to decode it:
+
+```python
+flag = "76<space>321021089710332<space>115116581089795118<red><space>95<space>1109599<blue><green>108<space><green>114115125"
+
+is_digit = lambda c: c >= '0' and c <= '9'
+take_if_digit = lambda c: c if isdigit(c) else ""
+
+def get_character(text, index):
+  # Try to get three digits, if not possible, get 2
+  n0 = text[index]
+  assert isdigit(n0)
+
+  n1 = take_if_digit(text[index + 1])
+  n2 = take_if_digit(text[index + 2])
+
+  number = int(n0 + n1 + n2)
+  if number < 0xff:
+    return chr(number), index + len(n0 + n1 + n2)
+  else: #remove 1 digit, it's ok
+     return chr(int(n0 + n1)), index + len(n0 + n1)
+
+def get_symbol(text, index):
+  symbol = ""
+  char = text[index]
+  assert char == '<'
+  while True:
+    index += 1
+    char = text[index]
+    if char == '>': break
+    else: symbol += char
+
+def parse_flag(flag):
+  l = len(flag)
+  i = 0
+
+  result = ""
+  while i < l:
+    next_char = flag[i]
+    if isdigit(next_char):
+      char, next_i = get_character(flag, i)
+      result += char
+      i = next_i
+    else:
+      symbol, next_i = get_symbol(flag, i)
+      result += "{" + symbol + "}"
+      i = next_i
+
+  return result
+```
+
+Nevermind the code, I kinda forgot why it is what is, but most importantly the `parse_flag` method returns `L{space} flag {space}st:la_v{red}{space}_{space}n_c{blue}{green}l{space}{green}rs}`.
+
+What we need to do now is to figure out the meaning of the symbols `space`, `red`...
+
+Here, you can make an educated guesses, for example: `le flag` or `la flag` are both very likely, though most people say `le flag` I think.
+You can apply these guesses for the other symbols until you find something meaningful. I personnaly went with the mapping `{space -> e, green -> u, blue -> o, red -> i}`.
+
+This gives the flag: `404CTF{la_vie_en_couleurs}`
+
