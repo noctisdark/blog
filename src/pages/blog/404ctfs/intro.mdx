@@ -11,7 +11,7 @@ language: "english"
 image: "/static/media/404ctf/event_logo.png"
 keywords:
   ["Cybersecurity", "404CTF", "Diverse"]
-links: ["web"]
+links: ["web", "stegano", "crypto"]
 ---
 
 ## Introduction to the contest
@@ -58,3 +58,74 @@ We land on this post in the `announces` channel on the discord server:
 > Les inscriptions restant ouvertes, vous pourrez vous inscrire tout du long de la compétition au même lien !
 >
 > `404CTF{Un_bon_pour_un_cafe_gratuit}`
+
+### Desiré Dubois
+
+This one is a very interesting challenge.
+
+ audio features an amusing conversation between two individuals planning to call "Désirée Dubois" as part of an organized scam.
+Here is the audio for the challenge:
+
+<audio controls>
+  <source src="/static/media/404ctf/Desiree_Dubois.mp3" type="audio/mp3"/>
+</audio>
+
+The audio is hilarious and it's about two 2 planning to call `Désirée Dubois`, organizing a scam of sorts.
+
+So I plugged in the audio file in `Audacity` in order to thourougly analyze it, in reality I was hoping to find a flag in the spectrogram (classical challenge) but that was to no avail.
+
+I then re-read the statement of the challenge:
+
+```
+....
+Clearly, the person on the other end of the line is the victim of a bad move. They should be warned
+...
+```
+
+You can hear the scammers using a rotary dial phone to call the victim, maybe we can use the audio to call the same number they did ? Turns out that is the way to go !
+I measured the time took to dial each number in `Audacity`, because it's better than relying on my reaction time. And I got this array:
+
+```python
+measurements = [
+  [1.6680000000000001, 0.9100000000000001, 0.9630000000000001, 1.4049999999999994, 0.46499999999999986, 1.6489999999999991, 0.9980000000000011, 0.6159999999999997, 0.9869999999999983, 0.8930000000000007],
+]
+```
+
+The count checks out, the number of digits a phone number in France is usually 10 and we do have extra information:
+- Phone numbers in France usually start with a zero
+- In a rotary dial, 0 is the last number, it means it takes more time to dial (which agrees with the measurements)
+
+My idea was to fit this numbers on a line, and guess the numbers from the time taken to dial them. But in order to draw a line, we need two points and we only have one.
+I might be missing information for the other point, but I solved this challenge by guessing and evaluating my guesses.
+
+```python
+err_fn = lambda x: abs(x - round(x))
+
+def eval(pointA, pointB):
+  a = (pointB[1] - pointA[1]) / (pointB[0] - pointA[0])
+  b = pointA[1] - pointA[0]*a
+
+  print(f"Found line parameters: {a=}, {b=}")
+
+  err = 0
+  result = []
+  for d in measurements:
+    x = (d - b)/a
+    result.append(round(x))
+    err += err_fn(x)
+  return err, result
+
+for i in range(1, 10):
+  print(eval(
+    [10, max(measurements)],
+    [i, min(measurements)]
+  ))
+```
+
+It appears that: `min(measurements) -> 1` is the best guess, or maybe I'm just lucky.
+
+This yields the phone number `[10, 4, 5, 8, 1, 10, 5, 2, 5, 4] -> 0458105254`.
+
+The receive a reply in the same theme of the audio, which announces the flag.
+
+In the challenge format, the flag is: `404CTF{justeleflag}`
