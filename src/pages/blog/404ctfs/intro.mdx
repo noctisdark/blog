@@ -63,27 +63,25 @@ We land on this post in the `announces` channel on the discord server:
 
 This one is a very interesting challenge.
 
- audio features an amusing conversation between two individuals planning to call "Désirée Dubois" as part of an organized scam.
+The following audio clip features an amusing conversation between two individuals planning to call "Désirée Dubois" as part of an organized scam.
 Here is the audio for the challenge:
 
 <audio controls>
   <source src="/static/media/404ctf/Desiree_Dubois.mp3" type="audio/mp3"/>
 </audio>
 
-The audio is hilarious and it's about two 2 planning to call `Désirée Dubois`, organizing a scam of sorts.
-
-So I plugged in the audio file in `Audacity` in order to thourougly analyze it, in reality I was hoping to find a flag in the spectrogram (classical challenge) but that was to no avail.
-
-I then re-read the statement of the challenge:
+I plugged this file in `Audacity` to thourougly analyze it; in reality I was hoping to find a flag in the spectrogram (classic steganography challenge) but that wasn't the right approach.
+Looking at the challenge statement, I found this line that suggested a new approach:
 
 ```
 ....
-Clearly, the person on the other end of the line is the victim of a bad move. They should be warned
-...
+Clearly, the person on the other end of the line is the victim of a bad move. They should be warned !
+....
 ```
 
-You can hear the scammers using a rotary dial phone to call the victim, maybe we can use the audio to call the same number they did ? Turns out that is the way to go !
-I measured the time took to dial each number in `Audacity`, because it's better than relying on my reaction time. And I got this array:
+You can hear the scammers using a rotary dial phone to call the victim, so maybe we can use the audio to call the same number they did ?
+I measured the time took to dial each number in `Audacity`, because it's actually better than relying on my reaction time.
+The summarized results were recorded in the following array:
 
 ```python
 measurements = [
@@ -91,12 +89,15 @@ measurements = [
 ]
 ```
 
-The count checks out, the number of digits a phone number in France is usually 10 and we do have extra information:
+The length checks out, the number of digits a phone number in France is usually 10 and we do have extra information:
 - Phone numbers in France usually start with a zero
 - In a rotary dial, 0 is the last number, it means it takes more time to dial (which agrees with the measurements)
 
-My idea was to fit this numbers on a line, and guess the numbers from the time taken to dial them. But in order to draw a line, we need two points and we only have one.
-I might be missing information for the other point, but I solved this challenge by guessing and evaluating my guesses.
+Now the idea is to predict the phone numbers from the recorded dialing times by fitting pairs of `(time, number)` on a line.
+However, since we only had the dialing time for the zero, we lacked the second point to draw a line accurately.
+Despite this limitation, I managed to solve the challenge by making educated guesses and evaluating them using an error function. *There might be a better solution though, i don't know.*
+
+Here is a script that does just that:
 
 ```python
 err_fn = lambda x: abs(x - round(x))
@@ -122,10 +123,8 @@ for i in range(1, 10):
   ))
 ```
 
-It appears that: `min(measurements) -> 1` is the best guess, or maybe I'm just lucky.
-
+It appears that: `min(measurements) -> 1` is the best guess.
 This yields the phone number `[10, 4, 5, 8, 1, 10, 5, 2, 5, 4] -> 0458105254`.
-
-The receive a reply in the same theme of the audio, which announces the flag.
+Upon calling the number, I received a reply that followed the same theme as the audio, leading to the discovery of a message containing the flag.
 
 In the challenge format, the flag is: `404CTF{justeleflag}`
