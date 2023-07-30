@@ -1,0 +1,126 @@
+---
+layout: "@layouts/blog/Layout.astro"
+title: "404CTF Writeup - Forensics"
+description: "404CTF Challenges in the Forensics category."
+author: "Majed Abdennadher"
+timestamp: 1690703491953
+duration: 10
+tag: "404CTF"
+slug: "forensics"
+language: "english"
+image: "/static/media/404ctf/event_logo.png"
+keywords:
+  ["Cybersecurity", "404CTF", "Cryptography"]
+links: ["stegano", "web", "binary"]
+---
+
+### Pêche au livre
+
+Quite an classic challenge. Just open the pcap capture with wireshark. We immediately see an unencrypted HTTP exchange.
+Textually, the string `404CTF{...` is not present, so we need to look at the non-textual content: the images:
+
+![](/static/media/404ctf/peche-au-livre-1.png)
+
+The flag is: `404CTF{35SY_W1r35h4rk}`
+
+### Le Mystère du roman d’amour
+
+In this challenge, we are handed Vim swap file `fichier-etrange.swp` and to solve the challenge with must find:
+- the PID of the crashed process
+- the full path to the file in question (spaces allowed): both the exact form found in the challenge and the extended form beginning with / validate the challenge
+- the name of Rouletabille's (a character) friend
+- the name of the machine
+- the **TEXT** content of the draft of his book (if you have something other than text, keep searching: you need to find text content that clearly resembles the beginning of a novel). Once this content has been found, it will be clearly indicated which part to use to submit the flag (it will be a leet string).
+
+We can use the `file` command to inspect the file given to use and we already find a lot of informations:
+
+```bash
+file fichier-etrange.swp
+# fichier-etrange.swp: Vim swap file, version 7.4, pid 168, user jaqueline, host aime_ecrire, file ~jaqueline/Documents/Livres/404 Histoires d'Amour pour les bibliophiles au coeur d'artichaut/brouillon.txt
+```
+
+Then we can actually recover the file by opening it in vim using `vim -r fichier-etrange.swp`. We notice that the content is really an image, as revealed by the header `\x89PNG\r\n\x1A\n`.
+We then recover it by typing `:w restored.png` in vim.
+
+Here is the image we find:
+![](/static/media/404ctf/mystere-du-roman-d-amour-1.png)
+
+We can then use `stegsolve` (*instructions in another blog post [here](/blog/404ctfs/stegano/#l%C5%93uvre)*). 
+In `stegsolve` we can walk through the different color channels until we stumble upon something interesting: QR code.
+
+![](/static/media/404ctf/mystere-du-roman-d-amour-2.png)
+
+I scanned this image with my phone and I got the following text:
+
+```
+Il était une fois, dans un village rempli d'amour, deux amoureux qui s'aimaient...
+
+Bien joué ! Notre écrivaine va pouvoir reprendre son chef-d'oeuvre grâce à vous !
+Voici ce que vous devez rentrer dans la partie "contenu du fichier" du flag : 3n_V01L4_Un_Dr0l3_D3_R0m4N
+```
+
+Concatenating all of this information, we find the flag: <span class="break-words">`404CTF{168-~jaqueline/Documents/Livres/404 Histoires d'Amour pour les bibliophiles au coeur d'artichaut/brouillon.txt-jaqueline-aime_ecrire-3n_V01L4_Un_Dr0l3_D3_R0m4N}`</span>
+
+### Les Mystères du cluster de la Comtesse de Ségur
+
+A checkpoint-bash_default-bash-2023-05-06T090421Z.zip file is provided.
+
+At first I tried if I can get the flag for free with it:
+
+```bash
+grep -ir 404CTF checkpoint-bash_default-bash-2023-05-12T09:04:21Z
+```
+No chance.
+
+Let's look at the files manually. A rather interesting file `io.kubernetes.cri-o`. In particular `io.kubernetes.cri-o.LogPath` logs everything that has been executed by the container in the Kubernetes cluster.
+
+```bash
+cat checkpoint-bash_default-bash-2023-05-12T09:04:21Z/io.kubernetes.cri-o.LogPath
+```
+
+On this file, we can see that a user has become root. Close inspection of this file shows that the attacker is executing:
+
+```bash
+....  
+curl agent.challenges.404ctf.fr -o agent.zip
+unzip agent.zip
+....
+```
+
+Doing the same as they did, when we unzip the `agent.zip` archive, we find a file containing the flag: <span class="break-words">`404CTF{K8S_checkpoints_utile_pour_le_forensic}`</span>.
+
+### Lettres volatiles
+
+In this challenge, we are given an archive file C311M1N1.zip containing the home directory of a user on a machine. Let's start by unzipping the file and searching for clues
+in various directories such as Images, Downloads, and Documents.
+
+Soon enough, we come across the file `s3cr37.zip` in the `/Documents/perso folder`, which requires a password (this ZIP file contains a suspicious PDF).
+Cracking passwords can be time-consuming, so let's explore a more efficient method. While walking through the file system, I found a mysterious file named `C311M1N1-PC-20230514-200525.raw`.
+It could be anything but given the challenge's name, there's a chance that it could be a RAM (volatile memory) dump. A widely used tool for analyzing such dumps is [`volatility`](https://github.com/volatilityfoundation/volatility/wiki/Installation).
+
+
+*[This](https://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/) is one of the first articles I read about using the tool and also happens to be a good Introduction.*
+
+```bash
+# Retrieve some information on the RAM dump
+vol.py -f C311M1N1-PC-20230514-200525.raw imageinfo
+```
+
+The password could be anywhere, and I spent some time looking in different places until I found it: in the clipboard.
+
+```bash
+# Dump the clipboard
+vol.py -f C311M1N1-PC-20230514-200525.raw --profile Win7SP1 clipboard
+# ... Z1p p4s5wOrd : F3eMoBon8n3GD5xQ ...
+```
+
+We can now unzip the secrets archive:
+
+```bash
+unzip -P F3eMoBon8n3GD5xQ s3cr37.zip
+```
+
+Inside, we find this letter:
+![](/static/media/404ctf/lettres-volatiles-1.png)
+
+And at the bottom of it, we discover the flag: <span class="break-words">`404CTF{V0147i1I7y_W1Ll_N3v3r_Wr8_loV3_l3ttEr5}`</span>
