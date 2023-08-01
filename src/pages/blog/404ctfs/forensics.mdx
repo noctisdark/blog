@@ -1,7 +1,7 @@
 ---
 layout: "@layouts/blog/Layout.astro"
 title: "404CTF Writeup - Forensics"
-description: "404CTF Challenges in the Forensics category."
+description: "404CTF - Forensics Category: The science of investigating and analyzing evidence"
 author: "Majed Abdennadher"
 timestamp: 1690703491953
 duration: 10
@@ -11,7 +11,7 @@ language: "english"
 image: "/static/media/404ctf/event_logo.png"
 keywords:
   ["Cybersecurity", "404CTF", "Cryptography"]
-links: ["stegano", "web", "binary"]
+links: ["reverse", "binary", "web"]
 ---
 
 ### Pêche au livre
@@ -91,10 +91,10 @@ Doing the same as they did, when we unzip the `agent.zip` archive, we find a fil
 
 ### Lettres volatiles
 
-In this challenge, we are given an archive file C311M1N1.zip containing the home directory of a user on a machine. Let's start by unzipping the file and searching for clues
+In this challenge, we are given an archive file `C311M1N1.zip` containing the home directory of a user on a machine. Let's start by unzipping the file and searching for clues
 in various directories such as Images, Downloads, and Documents.
 
-Soon enough, we come across the file `s3cr37.zip` in the `/Documents/perso folder`, which requires a password (this ZIP file contains a suspicious PDF).
+Soon enough, we come across the file `s3cr37.zip` in the `/Documents/perso` folder, which requires a password (this ZIP file contains a suspicious PDF).
 Cracking passwords can be time-consuming, so let's explore a more efficient method. While walking through the file system, I found a mysterious file named `C311M1N1-PC-20230514-200525.raw`.
 It could be anything but given the challenge's name, there's a chance that it could be a RAM (volatile memory) dump. A widely used tool for analyzing such dumps is [`volatility`](https://github.com/volatilityfoundation/volatility/wiki/Installation).
 
