@@ -271,18 +271,18 @@ Analyzing the equations more carefully we notice that:
 > At maximum, we can only satisfy 32 of these equations, which is the value we need to pass the `check` function.
 
 With this conclusion we can bruteforce some solutions after knowing the value of `cody`.
+I actually did this during the CTF and found only one solution in printable characters which was in fact the flag.
+But let's continue entertaining these thoughts to find a faster method.
 
 #### The Python Interpreter's Optimization
 
-While it seems like we can find many flag solutions (not only 1) because that there is only 32 active constraints, this isn't true.
+While it seems like we can find many flag solutions (not only 1) because that there is only 32 active constraints, this isn't necessarily true.
 The `check` function is run many (20) times, [The python interpreter will specialize bytecode instructions in order to optimize for speed](https://peps.python.org/pep-0659/),
-This in turn will changes the value of `cody`, adding more constraints (64 to be precise) on the values of `dumas`.
+This in turn will changes the value of `cody`, adding more constraints (64 to be precise) on the values of `dumas` to produce a unique flag for this challenge.
 
-Suppose we now know the flag is unique
+#### Working with printable characters
 
-> For a given `i` and a specific value of `cody`, exactly one equation of each type **must** be satisfied simultaneously.
-
-We can reasonably assume that the flag is consists only of the printable characters. In this case we get more information:
+If we assume that the flag consists only of the printable characters (a very reasonable assumption), then:
 - `33 <= dumas[i], dumas[i+1], dumas[i+2] <= 126`:
 - `dumas[i+1] = (rhs - dumas[i] - dumas[i+2]) / cody` for `type 1` equations
 - `dumas[i+2] = (rhs - dumas[i] - dumas[i+1]) / cody` for `type 2` equations
@@ -290,11 +290,13 @@ We can reasonably assume that the flag is consists only of the printable charact
 For any of these: `(rhs - 252) / 518 <= dumas[i+1], dumas[i+2] <= (rhs - 66) / 518`.
 
 The values of `cody` happen to be are large enough to uniquely compute `dumas[i+1]` and `dumas[i+2]`.
-We also require that the `dumas[i+1]` and `dumas[i+2]` found by solving these equations are the same across all values of `cody`.
+This doesn't mean what the solutions we get by solving these inequalities are characters of the flag, but characters of the flag is among the solutions for sure.
 
-Here is my approach for this challenge:
+A character of the flag verifies the property that it is found using the 2 equations of the same type and the 2 different values `cody` (*earlier conclusion*) so we will require this.
+
+Here is the summary for this solution:
 1. Get the 2 possible values of `cody`
-2. For each `i`, solve `dumas[i+1]` and `dumas[i+2]` from the previous inequalities, check for consistency, and deduce `dumas[i]`
+2. For each `i`, solve `dumas[i+1]` and `dumas[i+2]` from the previous inequalities, and deduce `dumas[i]`
 3. Concatenate to get the flag
 
 #### Getting the possible values of `cody`
@@ -324,6 +326,8 @@ def is_printable(d):
   return d >= 33 and d <= 126
 
 # Find a the unique `d` that verifies the equation with right hand side `rhs` and `cody`
+# type 1 => d = dumas[i+1]
+# type 2 => d = dumas[i+2]
 # `d` might not be part of the flag though, because we don't garentee that it will solve the other equation
 # with the other cody, this is the accomplished by the next function `solve`
 
@@ -332,7 +336,6 @@ def find_d(rhs, cody):
   d = math.ceil(interval[0])
   is_sat = d == math.floor(interval[1]) and is_printable(d)
   return is_sat, d
-
 
 def solve(equations, codies):
   for equation_i, cody_i in product(range(2), range(2)):
@@ -350,7 +353,7 @@ equations = [
   [(42776, 17234), (35329, 87961)],
   [(19862, 49274), (100914, 40542)],
   [(61221, 152553), (67347, 27099)],
-  [(18857, 46721), (49360, 122890)],
+  [(46721, 18857), (49360, 122890)],
   [(25080, 62232), (147438, 59202)],
   [(27661, 68683), (58164, 144852)],
   [(128064, 51438), (135810, 54540)],
@@ -373,6 +376,7 @@ for quad in equations:
   d2_sat, d2 = solve(type2, codies)
   if not d1_sat or not d2_sat: raise BaseException("cannot find the flag")
 
+  # We don't know which cody will satisfy this equation, but one of them will
   d0 = type1[0] - codies[0]*d1 - d2
   if not is_printable(d0): d0 = type1[0] - codies[1]*d1 - d2
 
@@ -381,4 +385,7 @@ for quad in equations:
 print(flag)
 ```
 
-If you run this script, you will find the flag: <span class="break-spaces">`404CTF{H!Dd&N-v4r$_f0r_5p3ciaLiz3d_0pCoD3S!|12T5Y22EML8}`</span>
+If you run this script, you will find the flag: <span class="break-words">`404CTF{H!Dd&N-v4r$_f0r_5p3ciaLiz3d_0pCoD3S!|12T5Y22EML8}`</span>
+
+This method is really fast for finding the *unique* flag but it's not general (*issues include: 2 doubles, lack of actual constraint satisfaction, etc..*)
+I think we can improve it to find all the flags if there are many and report failures more precisely. But in another blog post if you ask for it.
