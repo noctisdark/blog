@@ -20,6 +20,7 @@ module.exports = {
               "--tw-prose-pre-code": "hsl(var(--bc))",
               "--tw-prose-pre-bg": "hsl(var(--b2))",
               border: "unset",
+              maxHeight: 800,
             },
 
             a: {
