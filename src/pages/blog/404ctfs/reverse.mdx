@@ -3,7 +3,7 @@ layout: "@layouts/blog/Layout.astro"
 title: "404CTF Writeup - Reverse Engineering"
 description: "404CTF - Reverse Engineering Category: Analyzing software to understand its design and functionality intricacies"
 author: "Majed Abdennadher"
-timestamp: 1690908821391
+timestamp: 1687283789355
 duration: 10
 tag: "404CTF"
 slug: "reverse"
@@ -255,19 +255,19 @@ Analyzing the equations more carefully we notice that:
     - `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
     - `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
     - `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
-2. These equations come in 2 types:
-    - `type 1`: `dumas[i] + cody *dumas[i+1] +  dumas[i+2] == rhs`
-    - `type 2`: `dumas[i] + dumas[i+1] + cody *dumas[i+2] == rhs`
-3. There are exactly 2 `type 1` and 2 `type 2` equations
-    - `type 1`:
+2. These equations come in 2 types based on the position of the factor `cody`:
+    - type 1: `dumas[i] + cody *dumas[i+1] +  dumas[i+2] == rhs`
+    - type 2: `dumas[i] + dumas[i+1] + cody *dumas[i+2] == rhs`
+3. There are exactly 2 type 1 and 2 type 2 equations
+    - type 1:
         * `dumas[0] + dumas[1] + cody * dumas[2] == 35329`
         * `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
-    - `type 2`:
+    - type 2:
         * `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
         * `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
 4. Each of these equations have a different right-hand-sides
 
-> This means that for a given `i` and a specific value of `cody`, only one `type 1` and only one `type 2` can be satisfied for any assignement.
+> This means that for a given `i` and a specific value of `cody`, only one type 1 and only one type 2 can be satisfied for any assignement.
 > At maximum, we can only satisfy 32 of these equations, which is the value we need to pass the `check` function.
 
 With this conclusion we can bruteforce some solutions after knowing the value of `cody`.
@@ -284,13 +284,13 @@ This in turn will changes the value of `cody`, adding more constraints (64 to be
 
 If we assume that the flag consists only of the printable characters (a very reasonable assumption), then:
 - `33 <= dumas[i], dumas[i+1], dumas[i+2] <= 126`:
-- `dumas[i+1] = (rhs - dumas[i] - dumas[i+2]) / cody` for `type 1` equations
-- `dumas[i+2] = (rhs - dumas[i] - dumas[i+1]) / cody` for `type 2` equations
+- `dumas[i+1] = (rhs - dumas[i] - dumas[i+2]) / cody` for type 1 equations
+- `dumas[i+2] = (rhs - dumas[i] - dumas[i+1]) / cody` for type 2 equations
 
 For any of these: `(rhs - 252) / 518 <= dumas[i+1], dumas[i+2] <= (rhs - 66) / 518`.
 
 The values of `cody` happen to be are large enough to uniquely compute `dumas[i+1]` and `dumas[i+2]`.
-This doesn't mean what the solutions we get by solving these inequalities are characters of the flag, but characters of the flag is among the solutions for sure.
+This doesn't mean what the solutions we get by solving these inequalities are characters of the flag, but characters of the flag are definitely among the solutions.
 
 A character of the flag verifies the property that it is found using the 2 equations of the same type and the 2 different values `cody` (*earlier conclusion*) so we will require this.
 
@@ -328,8 +328,8 @@ def is_printable(d):
 # Find a the unique `d` that verifies the equation with right hand side `rhs` and `cody`
 # type 1 => d = dumas[i+1]
 # type 2 => d = dumas[i+2]
-# `d` might not be part of the flag though, because we don't garentee that it will solve the other equation
-# with the other cody, this is the accomplished by the next function `solve`
+# `d` might not be part of the flag though, because we don't garentee that it will solve the other same type equation for the other cody
+# this step is the accomplished by the next function `solve`
 
 def find_d(rhs, cody):
   interval = [(rhs - 252) / cody, (rhs - 66) / cody]
@@ -348,7 +348,10 @@ def solve(equations, codies):
       print("ignoring false solution", d1)
   return False, None
 
-# i -> (type 1 -> [rhs], type 2 -> [rhs])
+# Extracted from the challenge program
+# entries are ordered by `i`, representing equations with the variables {dumas[i], dumas[i+1], dumas[i+2]}
+# each entry consists of 2 tuples, the first tuple contains the right hand side values of the type 1 equations
+# same logic for the second tuple
 equations = [
   [(42776, 17234), (35329, 87961)],
   [(19862, 49274), (100914, 40542)],
@@ -370,13 +373,13 @@ equations = [
 
 codies = [518, 1292]
 flag = ""
-for quad in equations:
-  type1, type2 = quad
+for entry in equations:
+  type1, type2 = entry
   d1_sat, d1 = solve(type1, codies)
   d2_sat, d2 = solve(type2, codies)
   if not d1_sat or not d2_sat: raise BaseException("cannot find the flag")
 
-  # We don't know which cody will satisfy this equation, but one of them will
+  # We don't know which cody will satisfy this equation, but we know that one of them will
   d0 = type1[0] - codies[0]*d1 - d2
   if not is_printable(d0): d0 = type1[0] - codies[1]*d1 - d2
 
