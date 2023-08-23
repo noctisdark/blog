@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "intro"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Diverse"]
+keywords: ["Cybersecurity", "404CTF", "Diverse"]
 links: ["web", "stegano", "crypto", "binary", "reverse"]
 ---
 
@@ -47,8 +46,6 @@ Doing exactly that, we get the flag: `404CTF{I_<3_nc}`
 For the flag, you have to search the discord. There are two clues: the CTF opening date and the challenge description.
 We land on this post in the `announces` channel on the discord server:
 
-
-
 > Ça y est, le 404 CTF est enfin ouvert 🎉
 >
 > Vous aurez jusqu'au 4 juin 2023 pour découvrir tous nos challenges et marquer autant de points que possible !
@@ -67,7 +64,7 @@ The following audio clip features an amusing conversation between two individual
 Here is the audio for the challenge:
 
 <audio controls>
-  <source src="/static/media/404ctf/Desiree_Dubois.mp3" type="audio/mp3"/>
+  <source src="/static/media/404ctf/Desiree_Dubois.mp3" type="audio/mp3" />
 </audio>
 
 I plugged this file in `Audacity` to thourougly analyze it; in reality I was hoping to find a flag in the spectrogram (classic steganography challenge) but that wasn't the right approach.
@@ -90,12 +87,13 @@ measurements = [
 ```
 
 The length checks out, the number of digits a phone number in France is usually 10 and we do have extra information:
+
 - Phone numbers in France usually start with a zero
 - In a rotary dial, 0 is the last number, it means it takes more time to dial (which agrees with the measurements)
 
 Now the idea is to predict the phone numbers from the recorded dialing times by fitting pairs of `(time, number)` on a line.
 However, since we only had the dialing time for the zero, we lacked the second point to draw a line accurately.
-Despite this limitation, I managed to solve the challenge by making educated guesses and evaluating them using an error function. *There might be a better solution though, i don't know.*
+Despite this limitation, I managed to solve the challenge by making educated guesses and evaluating them using an error function. _There might be a better solution though, i don't know._
 
 Here is a script that does just that:
 

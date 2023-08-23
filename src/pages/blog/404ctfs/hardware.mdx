@@ -9,13 +9,12 @@ tag: "404CTF"
 slug: "hardware"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Cryptography"]
+keywords: ["Cybersecurity", "404CTF", "Cryptography"]
 links: ["crypto", "binary", "reverse"]
 ---
 
-
 ### Un courier suspect
+
 This challenge is a short introduction to hardware security, and in particular to `Logisim` software for creating and simulating electronic circuits.
 
 The challenge is fairly simple and is divided into 4 parts
@@ -43,7 +42,7 @@ By entering the code obtained in part 2, we obtain another part of the flag: `M0
 #### Part 4
 
 Part 4 also features a multiplexer, but it doesn't seem to work. In fact, after the multiplexer is a blackbox, consisting only of an AND gate between 0 and the multiplexer output.
-The problem is `x & 0 = 0` for whatever `x`, we're instead interested of `x`. We can achieve this by swapping the `0` with `ff`. 
+The problem is `x & 0 = 0` for whatever `x`, we're instead interested of `x`. We can achieve this by swapping the `0` with `ff`.
 Which gives us a new code: `44 33 5f 35 34 6d 75 73 33 72 7d 00`, which we can put in component part 3 to get the last part of flag `D3_54mus3r}`.
 
 ![](/static/media/404ctf/courrier-suspect-4.png)
@@ -54,6 +53,7 @@ Concatenating these parts gives us the flag: <span class="break-words">`404CTF{L
 
 In this challenge, we have to decrypt a message encrypted by an electronic device for which we have an operating trace for a string of characters.
 The flag is the string that generates this hexadecimal sequence:
+
 > 49 b7 71 9f 90 cc 74 9f ca a4 64 b9 83 7a 9e 5e`
 
 The challenge gives us the wave forms in `.vcd` format due to the input: `I_want_my_coffee`.
@@ -66,11 +66,13 @@ From the wave, we can read the output sequence corresponding to this input. The 
 #### Analyzing the circuit
 
 Looking at the `Amy0` module, we notice that:
+
 - `Amy0.a1` represents the input sequence.
 - `Amy0.b2` represents the same sequence delayed by one cycle, `0` used as a padding
 - `Amy0.c3` represents `Amy.a1 ^ Amy.b2`
 
 The relevant signals in the `Elena0` module are:
+
 - `Elena0.a1` which represents `Amy.a1 + Amy.c3`
 - `Elena0.b2` which stays 0 until the input ends (count the number of character) and then starts playing a hex sequence `49 5f 87 ..`
 - `Elena0.c1` which represent whetever this password is correct or not, since `49` is the same as the first character of the encoded password, it stays up but then goes low when we meet `5f != b7`
@@ -115,7 +117,6 @@ It has three stages, each stage transforms `(input[i], key[i]) -> (input[i] ^ ke
 In the end, the result is a simple `xor` operation. Since we know the first part of the flag, the key is easily determined.
 
 The flag is: <span class="break-words">`404CTF{Un_cH1FFrA9e_A55e2_bi3n_d3PreCie}`.</span>
-
 
 ### L'Être ou le néant
 
@@ -844,7 +845,7 @@ def Silicon(Flag_in):
 attempt = input('Certains de mes amis sont des Etres et d\'autre des Néants.\n'
                'Pour le vérifier j\'ai mis au point un circuit électronique!\n'
                'Partage lui un peu de ta sagesse pour que nous puissions savoir ce que tu es!\n')
-               
+
 bus = [modbv(0, 0, 2 ** 17) for _ in range(8)]
 if len(attempt) == 17:
     x = 0
@@ -876,15 +877,15 @@ class Leaf:
     if not name:
       self.name = name or f"x_{counter}"
       counter += 1
-      
+
     self.type = "leaf"
     self.value = None
-  
+
   def __repr__(self):
     if not self.value is None:
       return f"{self.name}={self.value}"
     return self.name
-  
+
   def compute(self, reset):
     return self.value
 
@@ -893,17 +894,17 @@ class NegNode:
     self.type = "unary"
     self.operand = operand
     self.value = None
-  
+
   def compute(self, reset = False):
     if reset: self.value = None
     if self.value: return
     self.operand.compute(reset)
     if self.operand.value is None: return
     self.value = not self.operand.value
-  
+
   def __repr__(self):
     return f"!({self.operand})"
-    
+
 
 class BinaryNode:
   def __init__(self, op, *operands):
@@ -911,7 +912,7 @@ class BinaryNode:
     self.operands = operands
     self.op = op
     self.value = None
-  
+
   def compute(self, reset = False):
     if reset: self.value = None
     if self.value: return
@@ -928,7 +929,7 @@ class BinaryNode:
       self.value = self.operands[0].value | self.operands[1].value
     else:
       raise BaseException(f"Unknown operator {self.op}")
-    
+
   def __repr__(self):
     return f"({self.operands[0]} {self.op} {self.operands[1]})"
 
@@ -961,14 +962,14 @@ for block_i in range(8):
     print(f"\riteration {i}/{1 << 17}", end="")
     for j in range(17):
       b[j].value = (i & (1 << j)) >> j
-    
+
     node.compute(True)
     # print(t[85])
     if node.value:
       print("\nsatisfied by", i)
       keys.append(i)
       found = True
-    
+
     if found: break
   if not found:
     raise BaseException("Cannot find a solution")

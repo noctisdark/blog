@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "crypto"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Cryptography"]
+keywords: ["Cybersecurity", "404CTF", "Cryptography"]
 links: ["stegano", "web", "hardware"]
 ---
 
@@ -29,8 +28,12 @@ This challenge is pretty straightforward. We are given a sequence of bytes and i
 #### Step 1: Hexadecimal decoding
 
 ```javascript
-const sequence = "32 69 31 73 34 69 31 73 31 35 64 31 6f 34 39 69 31 6f 34 64 31 6f 33 69 31 6f 31 35 64 31 6f 32 32 64 31 6f 32 30 64 31 6f 31 39 69 31 6f 37 64 31 6f 35 64 31 6f 32 69 31 6f 35 35 69 31 6f 31 64 31 6f 31 39 64 31 6f 31 37 64 31 6f 31 38 64 31 6f 32 39 69 31 6f 31 32 69 31 6f 32 36 69 31 6f 38 64 31 6f 35 39 64 31 6f 32 37 69 31 6f 36 64 31 6f 31 37 69 31 6f 31 32 64 31 6f 37 64 31 6f 35 69 31 6f 31 64 31 6f 32 64 31 6f 31 32 69 31 6f 39 64 31 6f 32 36 64 31 6f";
-const step1 = sequence.split(" ").map(x => String.fromCharCode(parseInt(x, 16))).join("");
+const sequence =
+  "32 69 31 73 34 69 31 73 31 35 64 31 6f 34 39 69 31 6f 34 64 31 6f 33 69 31 6f 31 35 64 31 6f 32 32 64 31 6f 32 30 64 31 6f 31 39 69 31 6f 37 64 31 6f 35 64 31 6f 32 69 31 6f 35 35 69 31 6f 31 64 31 6f 31 39 64 31 6f 31 37 64 31 6f 31 38 64 31 6f 32 39 69 31 6f 31 32 69 31 6f 32 36 69 31 6f 38 64 31 6f 35 39 64 31 6f 32 37 69 31 6f 36 64 31 6f 31 37 69 31 6f 31 32 64 31 6f 37 64 31 6f 35 69 31 6f 31 64 31 6f 32 64 31 6f 31 32 69 31 6f 39 64 31 6f 32 36 64 31 6f";
+const step1 = sequence
+  .split(" ")
+  .map((x) => String.fromCharCode(parseInt(x, 16)))
+  .join("");
 console.log(step1);
 /*2i1s4i1s15d1o49i1o4d1o3i1o15d1o22d1o20d1o19i1o7d1o5d1o2i1o55i1o1d1o19d1o17d1o18d1o29i1o12i1o26i1o8d1o59d1o27i1o6d1o17i1o12d1o7d1o5i1o1d1o2d1o12i1o9d1o26d1o*/
 ```
@@ -43,10 +46,13 @@ The goal of this step is to repeat a character by the number that precedes it. T
 [Deadfish](https://esolangs.org/wiki/Deadfish) is an esoteric programming language similar to Brainfuck.
 
 ```javascript
-const parseOne = (sequence, i, d = "") => (sequence[i] <= '9' && sequence[i] >= '0') ? parseOne(sequence, i+1, d + sequence[i]) : [+d, sequence[i], i+1];
+const parseOne = (sequence, i, d = "") =>
+  sequence[i] <= "9" && sequence[i] >= "0"
+    ? parseOne(sequence, i + 1, d + sequence[i])
+    : [+d, sequence[i], i + 1];
 let index = 0;
 let step2 = "";
-while ( index < step1.length ) {
+while (index < step1.length) {
   const [count, char, nextIndex] = parseOne(step1, index);
   step2 += char.repeat(count);
   index = nextIndex;
@@ -77,19 +83,21 @@ The flag is: `404CTF{M4igr3t_D3_c4naRd}`
 ### Dessine-moi une courbe elliptique
 
 In this challenge, we are provided with two files:
+
 - a Python script performing some encryption operations on the flag
 - a data file displayed by this encryption program.
 
 We can see that the flag is encrypted using the AES algorithm in CBC mode, with a random initialization vector and a key equal to the sum of the parameters of an elliptic curve.
 
 In the data file, we have:
+
 - two random points of the elliptic curve
 - the characteristic of the finite field on which the curve is based
 - the encrypted flag and the initialization vector.
 
 To solve the challenge, we have to find the parameters `a` and `b` of the elliptic curve, which will give us back the key used to encrypt the flag.
 
-Remember that the equation of an elliptic curve parameterized  by `a` and `b` is given by: `y^2 = x^3 + ax + b`.
+Remember that the equation of an elliptic curve parameterized by `a` and `b` is given by: `y^2 = x^3 + ax + b`.
 
 Since we're two points on the curve, this is a simple linear system of 2 unknowns.
 We can use an online tool for this, but I just wrote the equations in python because it isn't really complicated:
@@ -153,19 +161,20 @@ $ baa
 Another important thing to notice is that adding an a to the suffix of a text doesn't change its ciphertext. This motivated me to encode blocks using numbers starting from `a -> 0` and `b -> 1` etc...
 
 Now in the simplest of worlds, this cipher would be a linear cipher and luckily, it looks like it is the case since we've already seen that:
- - `C((0,0,0,0,0)) = (0,0,0,0,0)` as given by the encryption of the message `aaaaa`.
- - `C((0,1,0,0,0)) = C((1,0,0,0,0)) + C((0,1,0,0,0)) mod 25` as given by the encryptions of `bb`, `b` and `ab`.
+
+- `C((0,0,0,0,0)) = (0,0,0,0,0)` as given by the encryption of the message `aaaaa`.
+- `C((0,1,0,0,0)) = C((1,0,0,0,0)) + C((0,1,0,0,0)) mod 25` as given by the encryptions of `bb`, `b` and `ab`.
 
 If this is indeed the case, then `C(Message) = A*Message mod 25` where A is a matrix.
 
 To determine `A`, we just need to feed unit vectors to the encryption oracle (`baaaa`, `abaaa`, ..., `aaaab`), each one will return a column of `A`.
 
 ```
-    |  9, 11,  5, 13, 19 |  
-    |  4,  0,  6, 14, 21 |  
-A = | 18,  2,  7, 15, 22 |  
-    | 20,  1, 10, 16, 23 |  
-    |  8,  3, 12, 17, 24 | 
+    |  9, 11,  5, 13, 19 |
+    |  4,  0,  6, 14, 21 |
+A = | 18,  2,  7, 15, 22 |
+    | 20,  1, 10, 16, 23 |
+    |  8,  3, 12, 17, 24 |
 ```
 
 Solving the challenge is as easy as inverting this matrix in `Z_25`. This is doable if `det(A) != 0` and given by `A^-1 = Adj(A)/det(A)`. Where `Adj(A)` is the adjugate of `A`.
@@ -179,6 +188,7 @@ Thus, the flag is: `404CTF{barjavelmaassassine}`.
 ### ASCON Marchombre
 
 This challenge is pretty straightforward: we have to decipher a message from a key and a nonce given to us.
+
 - key: 00 45 6c 6c 61 6e 61 20 64 27 41 6c 2d 46 61 72
 - nonce: 0
 - ciphetext: ac 66 79 38 6f fc c3 f8 2d 6f ec 95 56 20 2a 1b e2 6b 8a f8 ee ca b9 87 83 d0 82 35 bf ca 26 37 93 b6 19 97 24 4e 78 5f 5c f9 6e 41 9a 23 f9 b2 91 37 d8 20 aa b7 66 ce 98 60 92 18 0f 1f 5a 69 0d c7 76 7e f1 df 76 e1 33 15 a5 c8 b0 4f b7 82
