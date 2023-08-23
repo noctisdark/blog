@@ -9,8 +9,7 @@ tag: "404CTF"
 slug: "reverse"
 language: "english"
 image: "/static/media/404ctf/event_logo.png"
-keywords:
-  ["Cybersecurity", "404CTF", "Cryptography"]
+keywords: ["Cybersecurity", "404CTF", "Cryptography"]
 links: ["crypto", "binary", "stegano"]
 ---
 
@@ -24,7 +23,7 @@ For the compiler part, we use `objdump` to disassemble to binary and read the `.
 ```bash
 objdump -s --section .comment divin-crackme
 # divin-crackme:     file format elf64-x86-64
-# 
+#
 # Contents of section .comment:
 #  0000 4743433a 20284465 6269616e 2031322e  GCC: (Debian 12.
 #  0010 322e302d 31342920 31322e32 2e3000    2.0-14) 12.2.0.
@@ -115,7 +114,7 @@ def check(dumas, zola):
   if dumas[3] + dumas[4] + cody * dumas[5] == 100914:
     carmen += 1
   if dumas[3] + cody * dumas[4] + dumas[5] == 49274:
-    carmen += 1    
+    carmen += 1
   if dumas[6] + cody * dumas[7] + dumas[8] == 61221:
     carmen += 1
   if dumas[36] + dumas[37] + cody * dumas[38] == 64773:
@@ -125,7 +124,7 @@ def check(dumas, zola):
   if dumas[9] + cody * dumas[10] + dumas[11] == 18857:
     carmen += 1
   if dumas[9] + cody * dumas[10] + dumas[11] == 46721:
-    carmen += 1    
+    carmen += 1
   if dumas[15] + dumas[16] + cody * dumas[17] == 58164:
     carmen += 1
   if dumas[15] + dumas[16] + cody * dumas[17] == 144852:
@@ -143,23 +142,23 @@ def check(dumas, zola):
   if dumas[18] + dumas[19] + cody * dumas[20] == 135810:
     carmen += 1
   if dumas[18] + cody * dumas[19] + dumas[20] == 128064:
-    carmen += 1    
+    carmen += 1
   if dumas[15] + cody * dumas[16] + dumas[17] == 68683:
-    carmen += 1    
+    carmen += 1
   if dumas[12] + cody * dumas[13] + dumas[14] == 62232:
-    carmen += 1    
+    carmen += 1
   if dumas[24] + cody * dumas[25] + dumas[26] == 66114:
-    carmen += 1    
+    carmen += 1
   if dumas[27] + cody * dumas[28] + dumas[29] == 25071:
     carmen += 1
   if dumas[6] + cody * dumas[7] + dumas[8] == 152553:
-    carmen += 1    
+    carmen += 1
   if dumas[6] + dumas[7] + cody * dumas[8] == 27099:
     carmen += 1
   if dumas[21] + dumas[22] + cody * dumas[23] == 54563:
     carmen += 1
   if dumas[45] + cody * dumas[46] + dumas[47] == 98325:
-    carmen += 1 
+    carmen += 1
   if dumas[39] + dumas[40] + cody * dumas[41] == 115125:
     carmen += 1
   if dumas[24] + cody * dumas[25] + dumas[26] == 26640:
@@ -181,7 +180,7 @@ def check(dumas, zola):
   if dumas[3] + dumas[4] + cody * dumas[5] == 40542:
     carmen += 1
   if dumas[0] + cody * dumas[1] + dumas[2] == 42776:
-    carmen += 1    
+    carmen += 1
   if dumas[30] + cody * dumas[31] + dumas[32] == 57633:
     carmen += 1
   if dumas[42] + cody * dumas[43] + dumas[44] == 26019:
@@ -191,7 +190,7 @@ def check(dumas, zola):
   if dumas[18] + cody * dumas[19] + dumas[20] == 51438:
     carmen += 1
   if dumas[21] + cody * dumas[22] + dumas[23] == 98394:
-    carmen += 1    
+    carmen += 1
   if dumas[24] + dumas[25] + cody * dumas[26] == 51973:
     carmen += 1
   if dumas[24] + dumas[25] + cody * dumas[26] == 129373:
@@ -201,13 +200,13 @@ def check(dumas, zola):
   if dumas[0] + cody * dumas[1] + dumas[2] == 17234:
     carmen += 1
   if dumas[30] + cody * dumas[31] + dumas[32] == 143547:
-    carmen += 1    
+    carmen += 1
   if dumas[33] + cody * dumas[34] + dumas[35] == 43078:
     carmen += 1
   if dumas[33] + dumas[34] + cody * dumas[35] == 42770:
     carmen += 1
   if dumas[33] + cody * dumas[34] + dumas[35] == 107320:
-    carmen += 1    
+    carmen += 1
   if dumas[36] + dumas[37] + cody * dumas[38] == 26073:
     carmen += 1
   if dumas[33] + dumas[34] + cody * dumas[35] == 17228:
@@ -215,17 +214,17 @@ def check(dumas, zola):
   if dumas[39] + cody * dumas[40] + dumas[41] == 27627:
     carmen += 1
   if dumas[39] + cody * dumas[40] + dumas[41] == 68649:
-    carmen += 1    
+    carmen += 1
   if dumas[27] + cody * dumas[28] + dumas[29] == 62223:
-    carmen += 1    
+    carmen += 1
   if dumas[42] + cody * dumas[43] + dumas[44] == 64719:
-    carmen += 1    
+    carmen += 1
   if dumas[45] + dumas[46] + cody * dumas[47] == 29161:
     carmen += 1
   if dumas[42] + dumas[43] + cody * dumas[44] == 35842:
     carmen += 1
   if dumas[36] + cody * dumas[37] + dumas[38] == 63482:
-    carmen += 1    
+    carmen += 1
   if dumas[42] + dumas[43] + cody * dumas[44] == 89248:
     carmen += 1
   if dumas[45] + dumas[46] + cody * dumas[47] == 72505:
@@ -240,7 +239,7 @@ if len(a) != 48:
   exit(0)
 
 for i in range(10): #Checker 10 fois c'est mieux que 1 seule fois ! Comme ça je suis sûr de moi...
-  if not (check(a, 1) or check(a, 1)): 
+  if not (check(a, 1) or check(a, 1)):
     print('Non, c\'est pas ça...')
     exit(0)
 
@@ -249,22 +248,23 @@ print('Bravo ! Le flag est 404CTF{le mot de passe que vous avez rentré pour val
 
 We are a system of 64 equations on the triplets `{dumas[i], dumas[i+1], dumas[i+2]}` of letters of the flag.
 Analyzing the equations more carefully we notice that:
+
 1. For each `0 <= i < 16`, 4 equations exists
-  For example
-    - `dumas[0] + dumas[1] + cody * dumas[2] == 35329`
-    - `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
-    - `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
-    - `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
+   For example
+   - `dumas[0] + dumas[1] + cody * dumas[2] == 35329`
+   - `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
+   - `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
+   - `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
 2. These equations come in 2 types based on the position of the factor `cody`:
-    - type 1: `dumas[i] + cody *dumas[i+1] +  dumas[i+2] == rhs`
-    - type 2: `dumas[i] + dumas[i+1] + cody *dumas[i+2] == rhs`
+   - type 1: `dumas[i] + cody *dumas[i+1] +  dumas[i+2] == rhs`
+   - type 2: `dumas[i] + dumas[i+1] + cody *dumas[i+2] == rhs`
 3. There are exactly 2 type 1 and 2 type 2 equations
-    - type 1:
-        * `dumas[0] + dumas[1] + cody * dumas[2] == 35329`
-        * `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
-    - type 2:
-        * `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
-        * `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
+   - type 1:
+     - `dumas[0] + dumas[1] + cody * dumas[2] == 35329`
+     - `dumas[0] + dumas[1] + cody * dumas[2] == 87961`
+   - type 2:
+     - `dumas[0] + cody * dumas[1] + dumas[2] == 42776`
+     - `dumas[0] + cody * dumas[1] + dumas[2] == 17234`
 4. Each of these equations have a different right-hand-sides
 
 > This means that for a given `i` and a specific value of `cody`, only one type 1 and only one type 2 can be satisfied for any assignement.
@@ -283,6 +283,7 @@ This in turn will changes the value of `cody`, adding more constraints (64 to be
 #### Working with printable characters
 
 If we assume that the flag consists only of the printable characters (a very reasonable assumption), then:
+
 - `33 <= dumas[i], dumas[i+1], dumas[i+2] <= 126`:
 - `dumas[i+1] = (rhs - dumas[i] - dumas[i+2]) / cody` for type 1 equations
 - `dumas[i+2] = (rhs - dumas[i] - dumas[i+1]) / cody` for type 2 equations
@@ -292,9 +293,10 @@ For any of these: `(rhs - 252) / 518 <= dumas[i+1], dumas[i+2] <= (rhs - 66) / 5
 The values of `cody` happen to be are large enough to uniquely compute `dumas[i+1]` and `dumas[i+2]`.
 This doesn't mean what the solutions we get by solving these inequalities are characters of the flag, but characters of the flag are definitely among the solutions.
 
-A character of the flag verifies the property that it is found using the 2 equations of the same type and the 2 different values `cody` (*earlier conclusion*) so we will require this.
+A character of the flag verifies the property that it is found using the 2 equations of the same type and the 2 different values `cody` (_earlier conclusion_) so we will require this.
 
 Here is the summary for this solution:
+
 1. Get the 2 possible values of `cody`
 2. For each `i`, solve `dumas[i+1]` and `dumas[i+2]` from the previous inequalities, and deduce `dumas[i]`
 3. Concatenate to get the flag
@@ -390,5 +392,145 @@ print(flag)
 
 If you run this script, you will find the flag: <span class="break-words">`404CTF{H!Dd&N-v4r$_f0r_5p3ciaLiz3d_0pCoD3S!|12T5Y22EML8}`</span>
 
-This method is really fast for finding the *unique* flag but it's not general (*issues include: 2 doubles, lack of actual constraint satisfaction, etc..*)
+This method is really fast for finding the _unique_ flag but it's not general (_issues include: 2 doubles, lack of actual constraint satisfaction, etc.._)
 I think we can improve it to find all the flags if there are many and report failures more precisely. But in another blog post if you ask for it.
+
+### Introspection
+
+In this challenge, we are given an elf program asking for a password: the password being the flag.
+Since it is an easy challenge, I tried running `strings` against it hoping for an easy solve but I found nothing meaningful.
+
+The next step is to decompile to program and see what is going on. And boy, it was really introspective.
+I'm not going to go much into detail, but the program basically unpacks a part of itself to create a new executable program and loads it into
+a temporary file created using the `memfd_create` system call (you can lookup the system call numbers to identify it, ghidra didn't compile this correctly for me).
+
+I tried doing this manually and I went up to 10 iterations but it just keeps going.
+Since I already have 10 samples, I identified a pattern in the next program and next key positions and I used python to automate the unpacking process for me.
+From there, I kept increasing this number of iterations until I got an error.
+
+Here is a script that unpacks the program a 101 times.
+
+```python
+import sys
+from elftools.elf.elffile import ELFFile
+
+def align_address(address, n = 16):
+  aligned_address = (address) & ~(n - 1)
+  return aligned_address
+
+PROGRAMS = [
+  [0x4060, 0x4060 + 0x18AE68],
+  # [0x4060, 0x4060 + 0x186E68],
+  # [0x4060, 0x4060 + 0x182FC0],
+  # [0x4060, 0x4060 + 0x17F1C8],
+  # [0x4060, 0x4060 + 0x17B330],
+  # [0x4060, 0x4060 + 0x177460],
+  # [0x4060, 0x4060 + 0x173658],
+  # [0x4060, 0x4060 + 0x16F928],
+  # [0x4060, 0x4060 + 0x16BAE0],
+  # [0x4060, 0x4060 + 0x167BA8],
+  # [0x4060, 0x4060 + 0x163CA8]
+]
+
+KEYS = [
+  [0x18eee0, 0x18eee0 + 0x41C],
+  # [0x18aee0, 0x18aee0 + 0x712],
+  # [0x187040, 0x187040 + 0x5B1],
+  # [0x183240, 0x183240 + 0x50F],
+  # [0x17f3a0, 0x17f3a0 + 0x5B1],
+  # [0x17b4e0, 0x17b4e0 + 0x5DA],
+  # [0x1776c0, 0x1776c0 + 0x52A],
+  # [0x1739a0, 0x1739a0 + 0x441],
+  # [0x16fb60, 0x16fb60 + 0x553],
+  # [0x16bc20, 0x16bc20 + 0x64D],
+  # [0x167d20, 0x167d20 + 0x614]
+]
+
+def get_next_iteration_parameters(iteration):
+  with open('./introspection_' + str(iteration), 'rb') as f:
+    elf = ELFFile(f)
+
+    greatest_segment, greatest_segment_size = None, 0
+    for segment in elf.iter_segments():
+      segment_start = segment.header.p_vaddr
+      segment_size = segment.header.p_filesz
+      segment_end = segment_start + segment_size
+
+      if segment_size > greatest_segment_size:
+        greatest_segment = segment
+        greatest_segment_size = segment_size
+
+    start = greatest_segment.header.p_vaddr
+    data = greatest_segment.data()
+
+    if iteration == 0:
+      print("Saved parameters for iteration 0")
+      key = data[KEYS[0][0] - start: KEYS[0][1] - start]
+      program = data[PROGRAMS[0][0] - start: PROGRAMS[0][1] - start]
+      return key, program
+
+    print("Found greatest segment", hex(start), hex(start + greatest_segment_size))
+    data = greatest_segment.data()
+    expected_key_size_position = align_address(greatest_segment_size - 4, 4)
+    print("Expected key size position", hex(expected_key_size_position))
+    key_size = int.from_bytes(data[expected_key_size_position:expected_key_size_position+4], "little")
+    print(key_size)
+    print("Expected key size", hex(key_size))
+    expected_key_position = align_address(expected_key_size_position - key_size)
+    print("Expected key position:", hex(expected_key_position))
+    key = data[expected_key_position:expected_key_position + key_size]
+    head = expected_key_position - 1
+    # A bunch of zeros until we find the program size
+    while not data[head]:
+      head -= 1
+
+    expected_program_size_position = align_address(head, 8)
+    print("Expected program size", hex(expected_key_size_position))
+    program_size = int.from_bytes(data[expected_program_size_position:expected_program_size_position+8], "little")
+    print("Expected program size", hex(program_size))
+    expected_program_position = expected_program_size_position - program_size
+    print("Expected program position", hex(expected_program_position))
+    program = data[expected_program_position:expected_program_position + program_size]
+
+    print("Key sample", key[:4], key[-4:])
+    print("Program sample", program[:4], program[-4:])
+    print("len(key) =", hex(len(key)))
+    return key, program
+
+def next_iteration(iteration):
+  key, program = get_next_iteration_parameters(iteration)
+
+  print("Unpacking ELF...")
+
+  program_size = len(program)
+  key_size = len(key)
+  correct_program = [0] * program_size
+  for i in range(program_size):
+    if i % 10240 == 0 or i == program_size-1:
+      print(f"\r {i}/{program_size} bytes processed", end="")
+      sys.stdout.flush()
+    correct_program[i] = (-1 + key[i % key_size] + 1^program[i]) & 0xff
+
+  correct_program = bytes(correct_program)
+  print("\nDone ! Saving file...")
+  with open(f'./introspection_{iteration+1}', 'wb') as f:
+    f.write(correct_program)
+
+
+for i in range(0, 101):
+  next_iteration(i)
+```
+
+I think there are some aspects of the program that I haven't yet understood, like maybe predicting the next parameters is actually easier than what I've used in the end. If you know a better method
+please let me know.
+
+In any case, you can run the script like this:
+
+```bash
+cp introspection introspection_0
+python3 unpack_101.py
+strings introspection_101
+rm introspection_*
+```
+
+Analyzing the output of `strings`, you'll find the flag: <span class="break-words">`404CTF{5t3althy_f1Le$-4nD_aUt0matIon}`</span>
