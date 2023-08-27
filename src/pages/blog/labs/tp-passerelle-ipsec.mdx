@@ -23,7 +23,7 @@ Ping depuis les machines au `Routeur`.
 
 ![](https://i.imgur.com/tYstmC4.png)
 
-On obtient ainsi la vidéo d’un coffre fort.
+On obtient ainsi la vidéo d'un coffre fort.
 
 ![](https://i.imgur.com/RuS3JSM.png)
 
@@ -33,7 +33,7 @@ Dans `/etc/network/interfaces`:
 
 ![](https://i.imgur.com/eGEyyUD.png)
 
-## Mise en place d’un proxy IPSec
+## Mise en place d'un proxy IPSec
 
 #### Création de l'IPsec CA
 
@@ -202,7 +202,7 @@ sudo systemctl start strongswan-starter
 
 ###### It doesn't work
 
-L'authentification échoue avec la notification suivante:
+L'authentification échoue avec la notification suivante :
 
 ```
 [IKE] loading EAP_MSCHAPV2 method failed
@@ -249,11 +249,11 @@ et sur l'interface `enp0s8` (connectée à `Visu`):
 
 ![](https://i.imgur.com/wRm3xkQ.png)
 
-Le problème ici et que l'addresse ip source est celle de la machine `Visu` et la réponse ne va pas passer par `IPSec`.
+Le problème ici est que l'adresse IP source est celle de la machine `Visu`, ainsi la réponse ne va pas passer par `IPSec`
 
 ###### Un fix
 
-Une solution simple est de créer un nouveau bloc d'addresse IP (virtuelles) et de donner à `Visu` une addresse ip.
+Une solution simple est de créer un nouveau bloc d'adresses IP (virtuelles) et de donner à `Visu` une adresse IP.
 
 Sur `IPSec`, dans `/etc/ipsec.conf`:
 
@@ -273,22 +273,22 @@ Sur `Visu`, dans le fichier équivalent:
 leftsourceip=%config			# Demander une addresse IP privée
 ```
 
-Sur `wireshark` on confirme l'implémentation;
+Sur Wireshark, on confirme l'implémentation :
 
 ![](https://i.imgur.com/MPHl0iw.png)
 
 <hr />
 <div style="font-size: 0.75em">
 
-C'est aussi possible d'ajouter une route sur `Routeur` pour transmettre le traffic sur `10.20.30.0/24` à `172.16.11.11` (j'ai testé et ça marche). Ceci est moins flexible parce elle depend de la plage virtuelle définie sur la machine `IPsec` mais elle offre moins de latence.
+est également possible d'ajouter une route sur le `Routeur` pour transmettre le trafic vers `10.20.30.0/24` à `172.16.11.11` (j'ai testé et ça fonctionne). Ceci est moins flexible parce qu'elle dépend de la plage virtuelle définie sur la machine `IPSec`, mais elle offre moins de latence.
 
-Il y a sans doute plusieurs solutions valides. **_J'aimerai savoir laquelle est "good practice" et pourquoi s'il vous plaît_**.
+Il y a sans doute plusieurs solutions valides. **_J'aimerais savoir laquelle est une 'bonne pratique' et pourquoi, s'il vous plaît_**.
 ![](https://i.imgur.com/2RZcsml.png)
 
 </div>
 <hr />
 
-### Mise en place d’un proxy IPSec derrière un Firewall
+### Mise en place d'un proxy IPSec derrière un Firewall
 
 Pour la configuration du Firewall je vais utiliser `iptables`.
 La configuration sera sauvée sous `/root/iptables-vpn.sh`
@@ -303,11 +303,11 @@ iptables -P FORWARD DROP
 iptables -A FORWARD -s 172.16.11.11 -j ACCEPT
 iptables -A FORWARD -d 172.16.11.11 -j ACCEPT
 
-# Si un traffic est établi, on continue à l'autoriser
+# Si un trafic est établi, on continue de l'autoriser
 iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 ```
 
-Ceci marche assez bien:
+Ceci fonctionne assez bien:
 
 - Si `Visu` n'est pas connectée au VPN, quand on ping `Camera`
 
@@ -321,4 +321,4 @@ Ceci marche assez bien:
 
 ## Closing Remarks
 
-TP super intéressant. J'ai bien aimé la méthode `DIY` adoptée par ce TP parce que ça m'a donné la chance de contempler differentes solutions et évlauer les pros/cons.
+TP vraiment intéressant. J'ai bien aimé la méthode `DIY` adoptée par ce TP parce que ça m'a donné la chance de contempler differentes solutions et évlauer les pros/cons.

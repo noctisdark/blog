@@ -107,12 +107,12 @@ I used python to decode it:
 flag = "76<space>321021089710332<space>115116581089795118<red><space>95<space>1109599<blue><green>108<space><green>114115125"
 
 is_digit = lambda c: c >= '0' and c <= '9'
-take_if_digit = lambda c: c if isdigit(c) else ""
+take_if_digit = lambda c: c if is_digit(c) else ""
 
 def get_character(text, index):
   # Try to get three digits, if not possible, get 2
   n0 = text[index]
-  assert isdigit(n0)
+  assert is_digit(n0)
 
   n1 = take_if_digit(text[index + 1])
   n2 = take_if_digit(text[index + 2])
@@ -132,6 +132,7 @@ def get_symbol(text, index):
     char = text[index]
     if char == '>': break
     else: symbol += char
+  return symbol, index + 1
 
 def parse_flag(flag):
   l = len(flag)
@@ -140,7 +141,7 @@ def parse_flag(flag):
   result = ""
   while i < l:
     next_char = flag[i]
-    if isdigit(next_char):
+    if is_digit(next_char):
       char, next_i = get_character(flag, i)
       result += char
       i = next_i
@@ -150,6 +151,10 @@ def parse_flag(flag):
       i = next_i
 
   return result
+
+print(parse_flag(flag))
+# Avoid the `}` in the end
+print(parse_flag(flag)[:-1].format(space='e', red='i', blue='o', green='u'))
 ```
 
 Nevermind the code, I kinda forgot why it is what is, but most importantly the `parse_flag` method returns `L{space} flag {space}st:la_v{red}{space}_{space}n_c{blue}{green}l{space}{green}rs}`.

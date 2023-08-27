@@ -971,8 +971,8 @@ for block_i in range(8):
       found = True
 
     if found: break
-  if not found:
-    raise BaseException("Cannot find a solution")
+    else:
+      raise BaseException("Cannot find a solution")
 
 
 print(keys) # [85137, 71688, 111538, 66570, 126876, 131070, 39435]

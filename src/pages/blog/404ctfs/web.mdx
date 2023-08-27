@@ -159,7 +159,7 @@ We visit the [challenge website](https://ddfc.challenges.404ctf.fr/). After walk
 ![](/static/media/404ctf/fuite-en-1791-1.png)
 
 It looks like we have to forge a new signature for an expiry date of our liking. In general this is not possible because the link (or any part of) is cryptographically signed.
-But maybe could have inveted his own signature algorithm, in which can we can try to reverse it or crack it.
+But maybe the developer invented was proud enough to roll his own signature algorithm ? If this is the case, then we might have a chance in reverse-engineering it or even cracking it.
 
 ![](/static/media/404ctf/fuite-en-1791-2.png)
 
@@ -169,17 +169,18 @@ For example: <span class="break-words">`expiry=-5625891070&signature=wawF6dC4Hz9
 
 The signature looks like a base64 encoding for the expiry value + maybe some salt or something similar.
 
-I ran out this experiment a bit furthur, my initial goal was to get the right signature for `expiry=-0000000000` and these are the results I got:
+I ran out this experiment a bit furthur, my initial goal was to get the right signature for `expiry=-0000000000` and these are the results I gathered:
 
 ```javascript
-// -1th of signature depend on -1th of expiry
-// s(i) = 47 - i
-// -2th of signature depend on -2th of expiry
-// s(i) = 48 + 4*i - 32*(i / 4 | 0)
-// -3-4th of signature depend on -3th of result
-//s(i) = 63 - 16*i + 64*(4 + (i / 4 | 0))
+// notation: x|0 = floor(x)
+// -1th of signature depend on -1th of expiry, in base64
+// signature[-1] = 47 - expiry[-1]
+// -2th of signature depend on -2th of expiry, in base64
+// signature[-2] = 48 + 4*expiry[-2] - 32*(expiry[-2] / 4 | 0)
+// -3-4th of signature depend on -3th of result, in base64
+// signature[-3:-4] = 63 - 16*expiry[-3] + 64*(4 + (expiry[-3] / 4 | 0))
 // -5th of signature depend on -4th of result
-// 4+(i % 4) - 8*(i/4 | 0)*(i/4 is odd)
+// signature[-5] = 4+(expiry[-4] % 4) - 8*(expiry[-4]/4 | 0)*(1 if (expiry[-4]/4|0) is odd else 0)
 ...
 ```
 
@@ -357,7 +358,7 @@ Although I can't provide any in-progress details since I'm writing this post aft
 
 ![](https://github.com/HackademINT/404CTF-2023/blob/main/Web/ChansonDInde/write_up/Walkthrough.gif?raw=true)
 
-When can find their writeup [here](https://github.com/HackademINT/404CTF-2023/blob/main/Web/ChansonDInde/WRITE-UP.md).
+Where can find their writeup [here](https://github.com/HackademINT/404CTF-2023/blob/main/Web/ChansonDInde/WRITE-UP.md).
 
 #### Initial approach
 
@@ -376,7 +377,7 @@ Allow: /scene
 Disallow: /CHANGELOG.md
 ```
 
-Surprisingly, I discovered the presence of a /CHANGELOG.md route
+Surprisingly, I discovered the presence of a `/CHANGELOG.md` route
 Although it's usually not publicly available, except for open-source projects, it seemed suspicious for this website. I hoped to find a hint here.
 
 Reading the CHANGELOG.md, I gathered the following information:

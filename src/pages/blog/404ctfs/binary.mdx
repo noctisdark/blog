@@ -21,7 +21,7 @@ We look at the contents of the `donne_moi_la_lune.sh` file supplied with the cha
 eval "grep -wie ^$personne informations.txt"
 ```
 
-En regardant la manpage de grep, on comprend la commande:
+En regardant la page de manuel (manpage) de grep, on comprend la commande:
 
 - `-w`: Ce paramètre indique à grep de ne rechercher que les mots entiers qui correspondent exactement au motif. Par exemple, si le motif est "cat", grep ne recherchera que "cat" et non "catapult".
 - `-i`: Cette option indique à grep d'effectuer une recherche insensible à la casse. Par exemple, si le motif est "Cat", grep recherchera aussi bien "cat" que "Cat".
@@ -29,7 +29,7 @@ En regardant la manpage de grep, on comprend la commande:
 
 The challenge also indicates that the flag exists in a file called `lune.txt`.
 
-To get the script, we provide the response `.* lune.txt` so the command `grep -wie ^.* lune.txt informations.txt` will be executed to display all the contents of these two files:
+To obtain the script, we reply with `.* lune.txt`, this way, the command `grep -wie ^.* lune.txt informations.txt` will be executed to display all the contents of these two files:
 
 ```
 lune.txt:404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}
@@ -37,11 +37,11 @@ informations.txt:Caligula, tu es le PDG de Imperium Romanum Enterprises, tu devr
 ...
 ```
 
-As you can see, the flag is `404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}`.
+The flag, as visible in the output, is `404CTF{70n_C0EuR_v4_7e_1Ach3R_C41uS}`.
 
 ### L'Alchimiste
 
-The aim of this challenge is to abuse the heap's vulnerabilities. It's not something I'd consider very simple for a first challenge, but let's get on with it.
+The goal of this challenge is to exploit vulnerabilities in the heap. It's not something I'd consider very simple for a first challenge, but let's get on with it.
 
 I used `ghidra` to disassemble the binary provided. Here are the rules of the game:
 
@@ -66,7 +66,7 @@ One thing you notice here is that the verification of how much gold you have is 
 
 **Note that we cannot use the elixir after it has been released because the program is compiled to detect "double releases". So we'll have to buy an elixir and receive the failure message. But that is no problem.**
 
-Here is a script to get this far:
+The following script can be used to achieve this:
 
 ```python
 from pwn import *
@@ -394,7 +394,7 @@ print(getline(p))
 There are many other solutions, for example a specific vulnerability is that Wasm's memory functions as a continuous zone with no permissions (read, write, execute), as in a conventional ELF binary, for example.
 This lack of separation between memory zones and the absence of permissions means that in a Wasm binary, the contents of the heap can be rewritten from the stack, which is impossible in an ELF binary.
 
-Which means you can't overflow from the stack and reach the heap if I understood correctly. The author's solution uses this payload instead:
+Which basically means you can overflow the stack and the override will reach the heap, if I understood correctly. The author's solution uses this payload instead:
 
 ```python
 payload = b"A" * 24 + p32(0x00011a20) + b"A" * 20 + p32(0x50bada55) + b'\n'

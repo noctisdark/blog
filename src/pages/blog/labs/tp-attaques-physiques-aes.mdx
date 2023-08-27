@@ -1,7 +1,7 @@
 ---
 layout: "@layouts/blog/Layout.astro"
 title: "Attaques physiques sur AES"
-description: "Introduction aux attaques physiques de systèmes electroniques - Travaux pratiques, CFA et DFA sur AES"
+description: "Introduction aux attaques physiques de systèmes électroniques - Travaux pratiques, CFA et DFA sur AES"
 author: "Majed Abdennadher"
 timestamp: 1674091068893
 duration: 15
@@ -29,26 +29,27 @@ Le but de cette attaque est de reconstruire la _clé du chiffrement_ AES par des
 Le resultat de l'éxecution de `python3 ../test/J-test-aes.py`:
 ![](https://i.imgur.com/lbRqVzL.png)
 
-On observe que la dernière colonne est nulle, ainsi le `ciphertext` généré par notre application est ce qui est attendu. La probabilité que ça soit par chance est énormement faible. Donc oui, application fonctionne bien sur le microcontrôleur.
+On observe que la dernière colonne est nulle, ainsi le `ciphertext` généré par notre application est ce qui est attendu. La probabilité que cela soit dû au hasard est extrêmement faible.
+Donc oui, application fonctionne bien sur le microcontrôleur.
 
 ### 6. Trouvez le nom du symbole dont vous voulez mesurer la consommation de courant
 
 On souhaite mesurer la consommation de la fonction `SubBytes`.
-Plus précisement, dans le premier round parce que cette fonction manipulera `state ⊕ key`.
+Plus précisément, dans le premier round, car cette fonction manipulera `state ⊕ key`.
 
 ### 8. Expliquez ce que vous avez mesuré précisément et pourquoi ?
 
-On a mesuré la consommation de courant de la fonction `SubBytes`. On peut ceci pour générer des traces qu'on exploitera pour faire des hypothèses à propos de la clé et les valider.
+On a mesuré la consommation de courant de la fonction `SubBytes`. On peut utiliser ceci pour générer des traces qu'on exploitera pour faire des hypothèses à propos de la clé et les valider
 
 ### 10. Fixez-vous un octet de la clé du premier tour (par exemple l’octet 4), combien y a t-il de valeurs possibles pour cet octet de clé ?
 
-Choissons le premier octet. Il y a 256 valeurs possible pour cet octet: tout les entiers entre 0 et 255.
+Choissons le premier octet. Il y a 256 valeurs possibles pour cet octet: tous les entiers entre 0 et 255
 
 ### 11. En choisissant le poids de Hamming comme modèle, rappelez quel est le chemin d’attaque théorique.
 
-L'objectif est d'exploiter les traces pour faire des hypothèses à propos de la clé et les valider.
+L'objectif est d'exploiter les traces pour formuler des hypothèses à propos de la clé et les valider.
 
-Dans ce modèle, on supposera que la consommation du courant augmente avec le nombre de bits à valeur `1`.
+Dans ce modèle, on suppose que la consommation du courant augmente avec le nombre de bits à valeur `1`.
 
 1. Comme on fait une attaque à clair connu, on fait une hypothèse sur un octet `k` de la clé. Puis on crée une matrices de prédictions <code>P<sub>Hw,k</sub> = HW(SB(s<sub>0</sub> ⊕ k<sub>0</sub>))</code>. où `HW` est le Poids de Hammin`.
 2. On confronte nos prédictions <code>P<sub>Hw,k</sub></code> avec la matrice des traces `M` contenant les mesures.
@@ -352,7 +353,7 @@ Ceci dessine la figure suivante:
 
 On observe une valeur distinguée correspondante à `0xd0`.
 Sachant qu'une faible entropie indique un biais, ceci qui validera notre hypothèse.
-En regardant le code source de `/L6-DFA/L-DFA.py`, on vérifie bien que c'est premier octet de <code>K<sub>10</sub></code>.
+En regardant le code source de `/L6-DFA/L-DFA.py`, on vérifie bien que c'est le premier octet de <code>K<sub>10</sub></code>.
 
 #### Modifiez les paramètres de la question 2 afin de fauter d’autres octets et retrouver la clé du dernier tour entièrement
 

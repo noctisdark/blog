@@ -24,7 +24,7 @@ links: ["tp-orange-data", "tp-malware-android"]
 
 ##### A. Adresses IP:
 
-L'execution de la commande `$ ip -4 addr show | grep inet` sur les differentes machine donne les résultats suivante.
+L'exécution de la commande `$ ip -4 addr show | grep inet` sur les différentes machines donne les résultats suivants.
 
 - Sous la machine `server`:
   ![](https://i.imgur.com/s4Md708.png)
@@ -35,7 +35,7 @@ L'execution de la commande `$ ip -4 addr show | grep inet` sur les differentes m
 
 ##### B. Tables de routage:
 
-L'execution de la commande `$ ip route` sur les differentes machine donne les résultats suivante.
+L'execution de la commande `$ ip route` sur les différentes machines donne les résultats suivante.
 
 - Sous la machine `server`:
   ![](https://i.imgur.com/gkgmVyc.png)
@@ -52,12 +52,12 @@ Ce qui correspond à cette image:
 
 ### 2. Initialisation
 
-1. La configuration du réseau est faite en étape précedente.
+1. La configuration du réseau est faite à l'étape précédente.
 2. Le machine `backtrack` peut bien communiquer avec `server`.
    ![](https://i.imgur.com/hzm66Kj.png)
 3. Suricata is dead and we killed him
    ![](https://i.imgur.com/fRnjMNJ.png)
-4. On utilise `nano` pour modifier la configuration de suricata afin d'activer la sauvegarde des paquets avec
+4. On utilise `nano` pour configurer suricata afin d'activer la sauvegarde des paquets avec
    ![](https://i.imgur.com/k7JAmmg.png)
 5. On execute `$ suricata /etc/suricata/suricata.yaml -i eth0` pour lancer suricata en mode capture live sur l'interface `eth0`.
    on execute `$ ping 192.168.5.2` depuis la machine `backtrack`.
@@ -75,7 +75,7 @@ Les attaques sont initiées depuis le réseau WAN, où la machine `backtrack` es
 
 ### 1. Détection de balayage de ports
 
-##### A. Mise à jours de règles
+##### A. Mise à jour de règles
 
 Mise à jour des sources: `$ suricata-update update-sources`
 Mise à jour la base de signatures de suricata: `$ suricata-update`
@@ -83,7 +83,7 @@ Mise à jour la base de signatures de suricata: `$ suricata-update`
 Les règles disponibles listés ci-dessous:
 ![](https://i.imgur.com/YPP8m9Y.png)
 
-Activation de l’ensemble des règles Emerging Threats open-source:
+Activation de l’ensemble des règles open-source `Emerging Threats`:
 `$ suricata-update enable-source et/open && suricata-update`
 Les règles sont écrites dans le fichier `/var/lib/suricata/rules/suricata.rules`.
 Dans le fichier de configuration `/etc/suricata/suricata.yaml`, on prend en compte ce dernier:
@@ -121,13 +121,13 @@ On utilise netcat pour écouter une connection HTTP sur la machine `backtrack` e
 ![](https://i.imgur.com/3hers0j.png)
 ![](https://i.imgur.com/iOoMc0C.png)
 
-Sur la machine `suricata`, 3 alertes sont généré dont deux liées à curl et une à notre header malveillant.
+Sur la machine `suricata`, 3 alertes sont générées dont deux liées à curl et une à notre header malveillant.
 ![](https://i.imgur.com/IaRpcHl.png)
 Selon cette page sur [Bitcoin Wikipedia](https://en.bitcoin.it/wiki/Getwork), le serveur subit une instance de **cryptojacking**. C'est est une forme de piratage qui consiste à utiliser la puissance de calcul de l'ordinateur d'une personne sans son consentement pour extraire des cryptomonnaies.
 
 ### 3. Écriture de signature
 
-##### Vérification du fonctionnement du server
+##### Vérification du fonctionnement du serveur
 
 On lance le serveur depuis la machine `server`:
 ![](https://i.imgur.com/oxXf3vl.png)
@@ -161,7 +161,7 @@ Qui correspond à la signature qu'on vient d'ajouter (look at the `sid`).
 
 - Une classe d'attaque pertinente: `classtype: successful-recon-limited;`.
 - Je pense qu'il n'y a pas besoin de modifier le flux `$EXTERNAL_NET any -> $HOME_NET any`
-- On peut le restreidre le flux à `flow:established, to_server;`.
+- On peut le restreindre le flux à `flow:established, to_server;`.
 - On ajoute `http.uri` après le content pour la précision.
 - Finalement pourra aussi préciser le port du serveur `buggyhttp` mais ça devient trop spécifique.
 
@@ -205,7 +205,7 @@ alert tcp $EXTERNAL_NET any -> $HOME_NET any (msg:"Attempted password file leak!
 alert tcp $HOME_NET any -> $EXTERNAL_NET any (msg:"Password file leak!"; flow: established, to_client; classtype: successful-recon-limited; file_data; content:"root:"; flowbits:isset, steal_attempt; sid:1000002;)
 ```
 
-Une tentative de vol ne génère plus d'alerte: c'est seulement le vol qui produit une alerte maintenant. Peut-être c'est le temps de drop ces packets ?
+Une tentative de vol ne génère plus d'alerte: c'est seulement le vol qui produit une alerte maintenant. Peut-être est-il temps de dropper ces paquets ?
 
 ![](https://i.imgur.com/I63sTrT.png)
 

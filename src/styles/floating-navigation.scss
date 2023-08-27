@@ -16,6 +16,7 @@
   display: flex;
   flex-flow: column-reverse;
   align-items: flex-end;
+  z-index: 999;
 
   nav {
     position: relative;
