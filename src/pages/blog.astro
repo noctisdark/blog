@@ -33,11 +33,11 @@ const urlForPost = (post) =>
   </h1>
 
   <main
-    class="max-w-screen-xl w-full px-4 py-8 grid grid-cols-[repeat(auto-fill,minmax(24rem,1fr))] gap-8 justify-items-center"
+    class="max-w-screen-xl w-full px-4 py-8 grid grid-cols-[repeat(auto-fill,minmax(min(24rem,100%),1fr))] gap-8 justify-items-center"
   >
     {
       sortedPosts.map((post) => (
-        <a class="max-w-full" href={urlForPost(post)}>
+        <a href={urlForPost(post)}>
           <BlogCard post={post} />
         </a>
       ))
